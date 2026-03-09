@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"> <!-- Added Namespace -->
+
+    <style name="Theme.OrderEase" parent="Theme.MaterialComponents.Light.NoActionBar" />
+
+    <!-- Base application theme. -->
+    <style name="Base.Theme.OrderEase" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+    </style>
+
+    <style name="LargeHintText" parent="TextAppearance.Design.Hint">
+        <!-- Changed <android:textSize> to <item name="android:textSize"> -->
+        <item name="android:textSize">21sp</item>
+    </style>
+
+</resources>

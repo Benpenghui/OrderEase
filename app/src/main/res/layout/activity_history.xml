@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F0F0F0">
+
+    <!-- Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:elevation="4dp"
+        android:padding="24dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/back_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@android:drawable/ic_menu_revert"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="订单历史"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageView
+            android:id="@+id/menu_icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@android:drawable/ic_menu_sort_by_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Order Display Area -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/order_display_card"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="24dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="6dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@id/search_section">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/order_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="36dp">
+
+                <TextView
+                    android:id="@+id/display_order_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="98562014"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:textColor="#2C2C2C"/>
+
+                <TextView
+                    android:id="@+id/display_order_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2025年 11月 29日"
+                    android:textSize="21sp"
+                    android:textColor="#666666"
+                    android:layout_marginTop="12dp"/>
+
+                <LinearLayout
+                    android:id="@+id/order_details_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="36dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/display_customer_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="顾客: 老板娘"
+                        android:textSize="24sp"
+                        android:textColor="#2C2C2C"/>
+
+                    <TextView
+                        android:id="@+id/display_order_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="时间: 早上 10 点"
+                        android:textSize="24sp"
+                        android:textColor="#2C2C2C"
+                        android:layout_marginTop="12dp"/>
+
+                    <TextView
+                        android:id="@+id/display_order_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="价格: $15.00"
+                        android:textSize="24sp"
+                        android:textColor="#2C2C2C"
+                        android:layout_marginTop="12dp"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E0E0E0"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginBottom="24dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="订单项目:"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="#2C2C2C"/>
+
+                    <TextView
+                        android:id="@+id/display_order_items"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="• 物品 1 x2\n• 物品 2 x1"
+                        android:textSize="21sp"
+                        android:textColor="#2C2C2C"
+                        android:layout_marginTop="12dp"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/empty_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="请输入搜索条件查找订单"
+                    android:textSize="24sp"
+                    android:textColor="#999999"
+                    android:gravity="center"
+                    android:layout_marginTop="120dp"
+                    android:visibility="visible"/>
+
+            </LinearLayout>
+        </ScrollView>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Search Section -->
+    <LinearLayout
+        android:id="@+id/search_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:padding="24dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- Customer Name Input -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="135dp"
+                android:layout_height="wrap_content"
+                android:text="顾客名字:"
+                android:textSize="24sp"
+                android:textColor="#2C2C2C"/>
+
+            <EditText
+                android:id="@+id/search_name_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:backgroundTint="#CCCCCC"
+                android:textSize="24sp"
+                android:minHeight="60dp"
+                android:padding="12dp"/>
+        </LinearLayout>
+
+        <!-- Date Input -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="135dp"
+                android:layout_height="wrap_content"
+                android:text="日期:"
+                android:textSize="24sp"
+                android:textColor="#2C2C2C"/>
+
+            <EditText
+                android:id="@+id/search_date_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="选择日期"
+                android:background="@android:color/transparent"
+                android:backgroundTint="#CCCCCC"
+                android:textSize="24sp"
+                android:minHeight="60dp"
+                android:padding="12dp"
+                android:focusable="false"
+                android:clickable="true"
+                android:drawableEnd="@android:drawable/ic_menu_my_calendar"
+                android:drawablePadding="12dp"/>
+        </LinearLayout>
+
+        <!-- Search Button -->
+        <Button
+            android:id="@+id/search_btn"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginTop="36dp"
+            android:text="搜索"
+            android:textSize="27sp"
+            android:backgroundTint="#2C2C2C"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
