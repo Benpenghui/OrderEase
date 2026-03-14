@@ -2,6 +2,11 @@ package com.example.orderease
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -17,7 +22,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class AddOrderActivity : AppCompatActivity() {
+class EditOrderActivity : AppCompatActivity() {
 
     private lateinit var customerNameInput: EditText
     private lateinit var phoneNumberInput: EditText
@@ -28,12 +33,13 @@ class AddOrderActivity : AppCompatActivity() {
     private val itemsInOrder = mutableListOf<AddOrderItemUI>()
     private lateinit var adapter: AddOrderAdapter
     private var availableProducts = listOf<Product>()
+    private var currentOrderId: Int = -1
     private var selectedCollectionDate = Calendar.getInstance()
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_order)
+        setContentView(R.layout.activity_edit_order)
 
         customerNameInput = findViewById(R.id.customer_name_input)
         phoneNumberInput = findViewById(R.id.phone_number_input)
@@ -41,14 +47,14 @@ class AddOrderActivity : AppCompatActivity() {
         totalPriceText = findViewById(R.id.total_price_text)
         recyclerViewItems = findViewById(R.id.recyclerViewItems)
 
+        currentOrderId = intent.getIntExtra("ORDER_ID", -1)
+
         // Setup Date Picker
-        collectionDateInput.setText(dateFormatter.format(selectedCollectionDate.time))
         collectionDateInput.setOnClickListener { showDatePicker() }
 
-        // Setup RecyclerView
         adapter = AddOrderAdapter(itemsInOrder, { availableProducts }, {
             updateOverallTotal()
-        }, { position: Int ->
+        }, { position ->
             removeItem(position)
         })
         
@@ -59,23 +65,47 @@ class AddOrderActivity : AppCompatActivity() {
         recyclerViewItems.layoutManager = LinearLayoutManager(this)
         recyclerViewItems.adapter = adapter
 
-        // Load products
-        lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(applicationContext)
-            availableProducts = db.productDao().getProductsByShop(1).first()
-            if (availableProducts.isEmpty()) {
-                availableProducts = listOf(Product(101, "Classic Cake", 2500, 1))
-            }
-            
-            if (itemsInOrder.isEmpty()) {
-                addNewItem()
-            }
-            adapter.notifyDataSetChanged()
+        if (currentOrderId != -1) {
+            loadOrderData()
+        } else {
+            Toast.makeText(this, "无效的订单ID", Toast.LENGTH_SHORT).show()
+            finish()
         }
 
         findViewById<ImageView>(R.id.menu_button).setOnClickListener { finish() }
         findViewById<Button>(R.id.back_to_main_button).setOnClickListener { finish() }
-        findViewById<Button>(R.id.save_order_button).setOnClickListener { submitOrder() }
+        findViewById<Button>(R.id.confirm_changes_button).setOnClickListener {
+            updateOrder()
+        }
+    }
+
+    private fun loadOrderData() {
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(applicationContext)
+            
+            availableProducts = db.productDao().getProductsByShop(1).first()
+            if (availableProducts.isEmpty()) {
+                availableProducts = listOf(Product(101, "Classic Cake", 2500, 1))
+            }
+
+            val orderWithDetails = db.orderDao().getOrdersWithDetailsInRange(0, Long.MAX_VALUE).first()
+                .find { it.order.orderId == currentOrderId }
+
+            orderWithDetails?.let { details ->
+                customerNameInput.setText(details.customer.name)
+                phoneNumberInput.setText(details.customer.phone)
+                
+                selectedCollectionDate.timeInMillis = details.order.collectionDate
+                collectionDateInput.setText(dateFormatter.format(selectedCollectionDate.time))
+
+                itemsInOrder.clear()
+                details.items.forEach { itemWithProduct ->
+                    itemsInOrder.add(AddOrderItemUI(itemWithProduct.product, itemWithProduct.orderItem.quantity))
+                }
+                adapter.notifyDataSetChanged()
+                updateOverallTotal()
+            }
+        }
     }
 
     private fun showDatePicker() {
@@ -107,12 +137,12 @@ class AddOrderActivity : AppCompatActivity() {
         }
     }
 
-    fun updateOverallTotal() {
+    private fun updateOverallTotal() {
         val totalCents = itemsInOrder.sumOf { it.selectedProduct?.cost?.times(it.quantity) ?: 0 }
         totalPriceText.text = String.format("总数: $ %.2f", totalCents / 100.0)
     }
 
-    private fun submitOrder() {
+    private fun updateOrder() {
         val customerName = customerNameInput.text.toString()
         val phoneNumber = phoneNumberInput.text.toString()
 
@@ -128,17 +158,17 @@ class AddOrderActivity : AppCompatActivity() {
                 Customer(name = customerName, phone = phoneNumber, notes = "")
             ).toInt()
 
-            val orderId = (System.currentTimeMillis() % 1000000).toInt()
-            val order = Order(
-                orderId = orderId,
-                paymentStatus = false,
-                orderDate = System.currentTimeMillis(),
-                collectionDate = selectedCollectionDate.timeInMillis,
-                collectionStatus = false,
-                shopId = 1,
-                customerId = customerId
-            )
-            db.orderDao().insertOrder(order)
+            val originalOrder = db.orderDao().getOrderById(currentOrderId)
+            originalOrder?.let {
+                val updatedOrder = it.copy(
+                    customerId = customerId,
+                    collectionDate = selectedCollectionDate.timeInMillis
+                )
+                db.orderDao().updateOrder(updatedOrder)
+            }
+
+            val oldItems = db.orderItemDao().getItemsForOrder(currentOrderId).first()
+            oldItems.forEach { db.orderItemDao().deleteOrderItem(it) }
 
             itemsInOrder.forEach { uiItem ->
                 uiItem.selectedProduct?.let { product ->
@@ -146,14 +176,14 @@ class AddOrderActivity : AppCompatActivity() {
                         OrderItemEntity(
                             quantity = uiItem.quantity,
                             totalPrice = product.cost * uiItem.quantity,
-                            orderId = orderId,
+                            orderId = currentOrderId,
                             productId = product.productId
                         )
                     )
                 }
             }
 
-            Toast.makeText(this@AddOrderActivity, "订单已保存", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@EditOrderActivity, "订单已更新", Toast.LENGTH_SHORT).show()
             finish()
         }
     }

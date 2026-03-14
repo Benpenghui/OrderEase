@@ -1,21 +1,25 @@
 package com.example.orderease.ui.login
 
-import android.app.Activity
 import android.content.Intent
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
-import com.example.orderease.databinding.ActivityLoginBinding
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.orderease.MainActivity
 import com.example.orderease.R
+import com.example.orderease.data.local.AppDatabase
+import com.example.orderease.data.local.entities.*
+import com.example.orderease.databinding.ActivityLoginBinding
+import kotlinx.coroutines.launch
+import java.util.*
 
 class LoginActivity : AppCompatActivity() {
 
@@ -33,7 +37,10 @@ class LoginActivity : AppCompatActivity() {
         val login = binding.login
         val loading = binding.loading
 
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
+        // Initialize DB and insert dummy admin first so login can succeed
+        initDummyAdmin()
+
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(applicationContext))
             .get(LoginViewModel::class.java)
 
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
@@ -59,6 +66,9 @@ class LoginActivity : AppCompatActivity() {
             }
             if (loginResult.success != null) {
                 updateUiWithUser(loginResult.success)
+
+                // Create rest of dummy data on successful login
+                createDummyData()
 
                 // Redirect to MainActivity after successful login
                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
@@ -97,6 +107,61 @@ class LoginActivity : AppCompatActivity() {
                 loading.visibility = View.VISIBLE
                 loginViewModel.login(username.text.toString(), password.text.toString())
             }
+        }
+    }
+
+    private fun initDummyAdmin() {
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(applicationContext)
+            // 1. Shop (Admin account for login)
+            val shop = Shop(1, "OrderEase HQ", "admin", "password123", "123-456-7890")
+            db.shopDao().insertShop(shop)
+        }
+    }
+
+    private fun createDummyData() {
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(applicationContext)
+            
+            // 2. Customer
+            val customerId = db.customerDao().insertCustomer(
+                Customer(name = "John Doe", phone = "555-0199", notes = "Frequent buyer")
+            ).toInt()
+
+            // 3. Product
+            val product = Product(101, "Classic Cake", 2500, 1) // price in cents
+            db.productDao().insertProduct(product)
+
+            // 4. Order (Current Date)
+            val currentTime = System.currentTimeMillis()
+            val order = Order(
+                orderId = 9001,
+                paymentStatus = false,
+                orderDate = currentTime,
+                collectionDate = currentTime + 86400000, // +1 day
+                collectionStatus = false,
+                shopId = 1,
+                customerId = customerId
+            )
+            db.orderDao().insertOrder(order)
+
+            // 5. Order Item
+            val orderItem = OrderItem(
+                quantity = 2,
+                totalPrice = 5000,
+                orderId = 9001,
+                productId = 101
+            )
+            db.orderItemDao().insertOrderItem(orderItem)
+
+            // 6. Payment
+            val payment = Payment(
+                paymentId = 501,
+                orderId = 9001,
+                amount = 2000,
+                method = "Cash"
+            )
+            db.paymentDao().insertPayment(payment)
         }
     }
 

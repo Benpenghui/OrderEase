@@ -17,18 +17,38 @@
             android:layout_height="wrap_content"
             android:padding="8dp">
 
-            <TextView
-                android:id="@+id/itemName"
+            <Spinner
+                android:id="@+id/itemSpinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="物品 1"
-                android:textSize="18sp" />
+                android:layout_alignParentStart="true"
+                android:minWidth="150dp"
+                android:minHeight="48dp" />
 
-            <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:src="@android:drawable/ic_menu_add" />
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/removeItemButton"
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:scaleType="centerInside"
+                    android:src="@android:drawable/ic_delete"
+                    android:tint="#D32F2F"
+                    android:visibility="gone" />
+
+                <ImageButton
+                    android:id="@+id/addItemButton"
+                    android:layout_width="58dp"
+                    android:layout_height="58dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:scaleType="centerInside"
+                    android:src="@android:drawable/ic_menu_add" />
+            </LinearLayout>
         </RelativeLayout>
 
         <View
@@ -56,19 +76,24 @@
                 android:gravity="end"
                 android:orientation="vertical">
 
-                <TextView
+                <EditText
+                    android:id="@+id/itemQuantity"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:background="#E0E0E0"
                     android:gravity="center"
+                    android:inputType="number"
+                    android:minHeight="48dp"
                     android:padding="4dp"
-                    android:text="12" />
+                    android:text="1"
+                    android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/itemTotalPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="总价: $ 12"
+                    android:text="总价: $ 0.00"
                     android:textSize="16sp" />
             </LinearLayout>
         </RelativeLayout>

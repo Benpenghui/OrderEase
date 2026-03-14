@@ -8,71 +8,61 @@
     app:cardCornerRadius="12dp"
     app:cardElevation="3dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Order ID and Price -->
+        <!-- Main content remains in its own layout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+            <!-- Order ID and Price Row -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/order_id"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="98562014"
+                    android:layout_alignParentStart="true"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/order_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="9001"
+                        android:textStyle="bold"
+                        android:textSize="24sp"
+                        android:textColor="#2C2C2C"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/order_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="$50.00"
                     android:textStyle="bold"
-                    android:textSize="24sp"
+                    android:textSize="27sp"
                     android:textColor="#2C2C2C"/>
+            </RelativeLayout>
 
-                <TextView
-                    android:id="@+id/order_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2024-11-25"
-                    android:textSize="18sp"
-                    android:textColor="#666666"
-                    android:layout_marginTop="3dp"/>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/order_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="$15.00"
-                android:textStyle="bold"
-                android:textSize="27sp"
-                android:textColor="#2C2C2C"/>
-        </LinearLayout>
-
-        <!-- Customer Name and Time -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:orientation="horizontal">
-
+            <!-- Customer Name and Time -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginTop="18dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/customer_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="老板娘"
+                    android:text="John Doe"
                     android:textSize="21sp"
                     android:textColor="#2C2C2C"/>
 
@@ -80,12 +70,25 @@
                     android:id="@+id/order_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="早上 10 点"
+                    android:text="03:45"
                     android:textSize="18sp"
                     android:textColor="#666666"
                     android:layout_marginTop="3dp"/>
             </LinearLayout>
         </LinearLayout>
 
-    </LinearLayout>
+        <!-- Delete button positioned at bottom right corner without pushing other views -->
+        <ImageButton
+            android:id="@+id/delete_item_btn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:visibility="gone"
+            android:scaleType="centerInside"
+            app:tint="#D32F2F" />
+
+    </RelativeLayout>
 </androidx.cardview.widget.CardView>

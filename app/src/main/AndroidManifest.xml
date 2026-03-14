@@ -21,7 +21,6 @@
             android:theme="@style/Theme.OrderEase">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -29,11 +28,31 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.OrderEase"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".AddOrderActivity"
             android:exported="false"
-            android:theme="@style/Theme.OrderEase"></activity>
+            android:theme="@style/Theme.OrderEase" />
+        <activity
+            android:name=".EditOrderActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OrderEase" />
+        <activity
+            android:name=".ProductManagementActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OrderEase" />
+        <activity
+            android:name=".CalendarActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OrderEase" />
+        <activity
+            android:name=".AnalyticsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OrderEase" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OrderEase" />
     </application>
 
 </manifest>

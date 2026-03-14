@@ -12,5 +12,6 @@
         <!-- Changed <android:textSize> to <item name="android:textSize"> -->
         <item name="android:textSize">21sp</item>
     </style>
+    <style name="Theme.OrderEase.MatComponent" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
 
 </resources>
