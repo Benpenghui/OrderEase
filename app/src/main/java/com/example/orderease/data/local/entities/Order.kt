@@ -24,7 +24,7 @@ import java.util.Date
     ]
 )
 data class Order(
-    @PrimaryKey @ColumnInfo(name = "order_id") val orderId: Int,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "order_id") val orderId: Int = 0,
     @ColumnInfo(name = "payment_status") val paymentStatus: Boolean,
     @ColumnInfo(name = "order_date") val orderDate: Long, // Storing as Long (timestamp)
     @ColumnInfo(name = "collection_date") val collectionDate: Long,

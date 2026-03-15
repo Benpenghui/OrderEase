@@ -1,0 +1,129 @@
+<resources>
+    <string name="app_name">OrderEase</string>
+    <string name="title_activity_login">登录界面</string>
+    <string name="prompt_username">用户名</string>
+    <string name="prompt_password">密码</string>
+    <string name="action_sign_in">登录或注册</string>
+    <string name="action_sign_in_short">登录</string>
+    <string name="welcome">"欢迎 !"</string>
+    <string name="invalid_username">无效的用户名</string>
+    <string name="invalid_password">密码必须大于5位字符</string>
+    <string name="login_failed">"登录失败"</string>
+
+    <!-- Navigation Menu -->
+    <string name="nav_calendar">日历</string>
+    <string name="nav_products">产品管理</string>
+    <string name="nav_analytics">数据分析</string>
+    <string name="nav_settings">设置</string>
+
+    <!-- Main Activity -->
+    <string name="today_orders_title">今天的订单</string>
+    <string name="add_order_btn_text">加单</string>
+    <string name="delete_btn_text">删除</string>
+    <string name="history_btn_text">历史</string>
+    <string name="next_important_date">下个重要日期</string>
+    <string name="christmas_label">(圣诞节)</string>
+    <string name="delete_order_title">删除订单</string>
+    <string name="delete_order_confirm">您确定要删除订单 %1$s 吗？</string>
+    <string name="order_details_title">订单详情</string>
+    <string name="order_id_label">订单号: </string>
+    <string name="phone_label">电话: </string>
+    <string name="collection_date_label">取货日期: </string>
+    <string name="items_label">项目:</string>
+    <string name="edit_btn">编辑</string>
+    <string name="close_btn">关闭</string>
+
+    <!-- History Activity -->
+    <string name="order_history_title">订单历史</string>
+    <string name="empty_search_message">请输入搜索条件查找订单</string>
+    <string name="customer_name_label">顾客名字:</string>
+    <string name="date_label">日期:</string>
+    <string name="select_date_hint">选择日期</string>
+    <string name="search_btn_text">搜索</string>
+    <string name="customer_label_prefix">顾客: </string>
+    <string name="time_label_prefix">时间: </string>
+    <string name="price_label_prefix">价格: </string>
+    <string name="order_items_label">订单项目:</string>
+    <string name="no_results">无结果</string>
+    <string name="no_matching_orders">没有找到匹配的订单</string>
+
+    <!-- Add/Edit Order Activity -->
+    <string name="add_order_title">加订单</string>
+    <string name="edit_order_title">编辑订单</string>
+    <string name="customer_name_title">顾客名字</string>
+    <string name="customer_name_hint">输入或选择姓名</string>
+    <string name="phone_number_title">电话号码</string>
+    <string name="phone_number_hint">输入电话</string>
+    <string name="collection_date_title">取货日期</string>
+    <string name="total_price_label">总数: $ %1$.2f</string>
+    <string name="item_total_price_label">总价: $ %1$.2f</string>
+    <string name="back_to_main_btn">返回主界面</string>
+    <string name="save_order_btn">保存订单</string>
+    <string name="confirm_changes_btn">确认修改</string>
+    <string name="order_saved">订单已保存</string>
+    <string name="order_updated">订单已更新</string>
+    <string name="invalid_order_id">无效的订单 ID</string>
+
+    <!-- Calendar Activity -->
+    <string name="calendar_title">日历</string>
+    <string name="busy_days_legend">= 订单多</string>
+    <string name="holiday_legend">= 节日日期</string>
+    <string name="back_btn_text">返回</string>
+    <string name="day_details_title">日期详情</string>
+    <string name="date_prefix">日期: </string>
+    <string name="lunar_prefix">农历: </string>
+    <string name="lunar_month_suffix"> 月 </string>
+    <string name="lunar_day_suffix"> 日</string>
+    <string name="holiday_prefix">节日: </string>
+    <string name="festive_prefix">节日: </string>
+    <string name="orders_prefix">订单: </string>
+    <string name="items_needed_label">所需项目:</string>
+    <string name="busy_day_label">(忙碌的一天!)</string>
+    <string name="no_events_message">这一天没有特别活动或订单。</string>
+    
+    <!-- Lunar Festivals -->
+    <string name="cny_day_1">农历新年 (初一)</string>
+    <string name="cny_day_2">农历新年 (初二)</string>
+    <string name="chap_goh_meh">元宵节</string>
+    <string name="dragon_boat">端午节</string>
+    <string name="mid_autumn">中秋节</string>
+    <string name="cny_eve">除夕</string>
+
+    <!-- Analytics Activity -->
+    <string name="analytics_title">数据分析</string>
+    <string name="current_month_label">当前月份: %1$s</string>
+    <string name="most_popular_label">最受欢迎</string>
+    <string name="amount_sold_label">销售量</string>
+    <string name="earnings_label">收入</string>
+
+    <!-- Product Management Activity -->
+    <string name="product_management_title">产品管理</string>
+    <string name="product_name_label">名字:</string>
+    <string name="product_price_label">价格:</string>
+    <string name="change_image_btn_text">更换图片</string>
+    <string name="update_btn_text">更新</string>
+
+    <!-- Settings Strings -->
+    <string name="settings_title">设置</string>
+    <string name="update_info">更新信息</string>
+    <string name="hint_name">姓名</string>
+    <string name="hint_number">电话号码</string>
+    <string name="update_profile">更新个人资料</string>
+    <string name="notification">通知</string>
+    <string name="change_language">更改语言</string>
+    <string name="sync_data">同步数据</string>
+    <string name="log_out">登出</string>
+
+    <!-- Dialogs and Toasts -->
+    <string name="select_language">选择语言</string>
+    <string name="logout_title">登出</string>
+    <string name="logout_confirm">您确定要登出吗？</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="error_empty_name">姓名不能为空</string>
+    <string name="error_empty_customer_name">请输入顾客姓名</string>
+    <string name="profile_updated">资料更新成功！</string>
+    <string name="syncing_data">正在同步数据...</string>
+    <string name="sync_complete">同步完成！</string>
+    <string name="no_internet">没有网络连接</string>
+</resources>

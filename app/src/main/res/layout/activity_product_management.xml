@@ -27,7 +27,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="产品管理"
+            android:text="@string/product_management_title"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -79,7 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="名字:"
+                android:text="@string/product_name_label"
                 android:textSize="21sp"/>
 
             <EditText
@@ -99,7 +99,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:text="价格:"
+                android:text="@string/product_price_label"
                 android:textSize="21sp"/>
 
             <EditText
@@ -121,7 +121,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="24dp"
-                android:text="改变图片"
+                android:text="@string/change_image_btn_text"
                 android:textSize="21sp"
                 android:backgroundTint="#2C2C2C"/>
 
@@ -130,7 +130,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="12dp"
-                android:text="更新"
+                android:text="@string/update_btn_text"
                 android:textSize="21sp"
                 android:backgroundTint="#2C2C2C"/>
 
@@ -139,7 +139,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="12dp"
-                android:text="返回"
+                android:text="@string/back_btn_text"
                 android:textSize="21sp"
                 android:backgroundTint="#2C2C2C"/>
 

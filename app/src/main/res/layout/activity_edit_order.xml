@@ -74,15 +74,16 @@
                         android:text="顾客名字"
                         android:textSize="18sp" />
 
-                    <EditText
+                    <AutoCompleteTextView
                         android:id="@+id/customer_name_input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:hint="输入姓名"
+                        android:hint="输入或选择姓名"
                         android:minHeight="48dp"
                         android:paddingTop="8dp"
-                        android:paddingBottom="8dp" />
+                        android:paddingBottom="8dp"
+                        android:completionThreshold="1" />
 
                     <View
                         android:layout_width="match_parent"

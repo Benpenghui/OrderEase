@@ -13,13 +13,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.orderease.FirebaseSyncManager
 import com.example.orderease.MainActivity
 import com.example.orderease.R
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.*
 import com.example.orderease.databinding.ActivityLoginBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
 
 class LoginActivity : AppCompatActivity() {
 
@@ -37,11 +39,10 @@ class LoginActivity : AppCompatActivity() {
         val login = binding.login
         val loading = binding.loading
 
-        // Initialize DB and insert dummy admin first so login can succeed
+        // Initialize DB only if empty
         initDummyAdmin()
 
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(applicationContext))
-            .get(LoginViewModel::class.java)
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(applicationContext))[LoginViewModel::class.java]
 
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
             val loginState = it ?: return@Observer
@@ -68,7 +69,21 @@ class LoginActivity : AppCompatActivity() {
                 updateUiWithUser(loginResult.success)
 
                 // Create rest of dummy data on successful login
-                createDummyData()
+                // createDummyData()
+
+                // Firebase Sync Logic with Toast
+                val syncManager = FirebaseSyncManager(applicationContext)
+                if (syncManager.isOnline()) {
+                    Toast.makeText(applicationContext, "Online: Syncing data to Firebase...", Toast.LENGTH_SHORT).show()
+                    
+                    // Use a CoroutineScope that isn't tied to the Activity lifecycle
+                    // so it doesn't cancel when finish() is called.
+                    CoroutineScope(Dispatchers.IO).launch {
+                        syncManager.syncLocalToFirebase()
+                    }
+                } else {
+                    Toast.makeText(applicationContext, "Offline: No network detected, using local database.", Toast.LENGTH_SHORT).show()
+                }
 
                 // Redirect to MainActivity after successful login
                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
@@ -113,56 +128,20 @@ class LoginActivity : AppCompatActivity() {
     private fun initDummyAdmin() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(applicationContext)
-            // 1. Shop (Admin account for login)
-            val shop = Shop(1, "OrderEase HQ", "admin", "password123", "123-456-7890")
-            db.shopDao().insertShop(shop)
+            // Only insert if shop table is empty
+            val existingShop = db.shopDao().getShop()
+            if (existingShop == null) {
+                val shop = Shop(1, "OrderEase HQ", "admin", "password123", "123-456-7890")
+                db.shopDao().insertShop(shop)
+                
+                // Also add one default product if none exists
+                db.productDao().insertProduct(Product(101, "Classic Cake", 2500, 1))
+            }
         }
     }
 
     private fun createDummyData() {
-        lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(applicationContext)
-            
-            // 2. Customer
-            val customerId = db.customerDao().insertCustomer(
-                Customer(name = "John Doe", phone = "555-0199", notes = "Frequent buyer")
-            ).toInt()
-
-            // 3. Product
-            val product = Product(101, "Classic Cake", 2500, 1) // price in cents
-            db.productDao().insertProduct(product)
-
-            // 4. Order (Current Date)
-            val currentTime = System.currentTimeMillis()
-            val order = Order(
-                orderId = 9001,
-                paymentStatus = false,
-                orderDate = currentTime,
-                collectionDate = currentTime + 86400000, // +1 day
-                collectionStatus = false,
-                shopId = 1,
-                customerId = customerId
-            )
-            db.orderDao().insertOrder(order)
-
-            // 5. Order Item
-            val orderItem = OrderItem(
-                quantity = 2,
-                totalPrice = 5000,
-                orderId = 9001,
-                productId = 101
-            )
-            db.orderItemDao().insertOrderItem(orderItem)
-
-            // 6. Payment
-            val payment = Payment(
-                paymentId = 501,
-                orderId = 9001,
-                amount = 2000,
-                method = "Cash"
-            )
-            db.paymentDao().insertPayment(payment)
-        }
+        // ... method implementation ...
     }
 
     private fun updateUiWithUser(model: LoggedInUserView) {

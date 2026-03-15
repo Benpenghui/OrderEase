@@ -28,7 +28,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="订单历史"
+            android:text="@string/order_history_title"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -130,7 +130,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="订单项目:"
+                        android:text="@string/order_items_label"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="#2C2C2C"/>
@@ -149,7 +149,7 @@
                     android:id="@+id/empty_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="请输入搜索条件查找订单"
+                    android:text="@string/empty_search_message"
                     android:textSize="24sp"
                     android:textColor="#999999"
                     android:gravity="center"
@@ -180,7 +180,7 @@
             <TextView
                 android:layout_width="135dp"
                 android:layout_height="wrap_content"
-                android:text="顾客名字:"
+                android:text="@string/customer_name_label"
                 android:textSize="24sp"
                 android:textColor="#2C2C2C"/>
 
@@ -207,7 +207,7 @@
             <TextView
                 android:layout_width="135dp"
                 android:layout_height="wrap_content"
-                android:text="日期:"
+                android:text="@string/date_label"
                 android:textSize="24sp"
                 android:textColor="#2C2C2C"/>
 
@@ -216,7 +216,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="选择日期"
+                android:hint="@string/select_date_hint"
                 android:background="@android:color/transparent"
                 android:backgroundTint="#CCCCCC"
                 android:textSize="24sp"
@@ -234,7 +234,7 @@
             android:layout_width="match_parent"
             android:layout_height="72dp"
             android:layout_marginTop="36dp"
-            android:text="搜索"
+            android:text="@string/search_btn_text"
             android:textSize="27sp"
             android:backgroundTint="#2C2C2C"/>
     </LinearLayout>

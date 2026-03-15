@@ -8,6 +8,9 @@ interface ShopDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertShop(shop: Shop)
 
+    @Update
+    suspend fun updateShop(shop: Shop)
+
     @Query("SELECT * FROM shops LIMIT 1")
     suspend fun getShop(): Shop?
 

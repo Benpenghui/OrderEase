@@ -18,7 +18,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Data Analysis"
+            android:text="@string/analytics_title"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -91,6 +91,7 @@
                     android:padding="24dp">
 
                     <TextView
+                        android:id="@+id/current_month_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Current Month: October"
@@ -108,10 +109,11 @@
                         <TextView
                             android:layout_width="150dp"
                             android:layout_height="wrap_content"
-                            android:text="Most Popular"
+                            android:text="@string/most_popular_label"
                             android:textSize="21sp"
                             android:textStyle="bold"/>
                         <TextView
+                            android:id="@+id/most_popular_item"
                             android:layout_width="0dp"
                             android:layout_height="60dp"
                             android:layout_weight="1"
@@ -130,10 +132,11 @@
                         <TextView
                             android:layout_width="150dp"
                             android:layout_height="wrap_content"
-                            android:text="Amount Sold"
+                            android:text="@string/amount_sold_label"
                             android:textSize="21sp"
                             android:textStyle="bold"/>
                         <TextView
+                            android:id="@+id/amount_sold_text"
                             android:layout_width="0dp"
                             android:layout_height="60dp"
                             android:layout_weight="1"
@@ -151,10 +154,11 @@
                         <TextView
                             android:layout_width="150dp"
                             android:layout_height="wrap_content"
-                            android:text="Earnings"
+                            android:text="@string/earnings_label"
                             android:textSize="21sp"
                             android:textStyle="bold"/>
                         <TextView
+                            android:id="@+id/earnings_text"
                             android:layout_width="0dp"
                             android:layout_height="60dp"
                             android:layout_weight="1"

@@ -27,7 +27,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="日历"
+            android:text="@string/calendar_title"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -144,7 +144,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="18dp"
-                android:text="= 订单多"
+                android:text="@string/busy_days_legend"
                 android:textSize="36sp"
                 android:textStyle="bold"/>
         </LinearLayout>
@@ -165,7 +165,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="18dp"
-                android:text="= 节日日期"
+                android:text="@string/holiday_legend"
                 android:textSize="36sp"
                 android:textStyle="bold"/>
         </LinearLayout>
@@ -176,7 +176,7 @@
         android:layout_width="match_parent"
         android:layout_height="72dp"
         android:layout_margin="36dp"
-        android:text="返回"
+        android:text="@string/back_btn_text"
         android:textSize="24sp"
         android:backgroundTint="#2C2C2C"
         app:layout_constraintBottom_toBottomOf="parent"/>

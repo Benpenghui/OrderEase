@@ -4,13 +4,29 @@
     android:layout_height="wrap_content"
     android:padding="2dp">
 
-    <TextView
-        android:id="@+id/day_text"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+    <LinearLayout
+        android:id="@+id/item_container"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
         android:layout_gravity="center"
-        android:gravity="center"
-        android:textSize="24sp"
-        android:textColor="#2C2C2C" />
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/day_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="#2C2C2C"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:id="@+id/lunar_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="9sp"
+            android:textColor="#757575"
+            android:includeFontPadding="false" />
+    </LinearLayout>
 
 </FrameLayout>

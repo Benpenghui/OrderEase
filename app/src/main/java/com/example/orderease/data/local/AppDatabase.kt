@@ -15,9 +15,10 @@ import com.example.orderease.data.local.entities.*
         Product::class,
         Order::class,
         OrderItem::class,
-        Payment::class
+        Payment::class,
+        Holiday::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -29,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun orderDao(): OrderDao
     abstract fun orderItemDao(): OrderItemDao
     abstract fun paymentDao(): PaymentDao
+    abstract fun holidayDao(): HolidayDao
 
     companion object {
         @Volatile
@@ -40,7 +42,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "orderease_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

@@ -17,4 +17,7 @@ interface CustomerDao {
 
     @Query("SELECT * FROM customers WHERE name LIKE :name")
     suspend fun findCustomerByName(name: String): List<Customer>
+
+    @Query("DELETE FROM customers") // Careful: This deletes ALL customers
+    suspend fun deleteAllCustomers()
 }

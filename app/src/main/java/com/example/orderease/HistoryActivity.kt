@@ -29,7 +29,8 @@ class HistoryActivity : AppCompatActivity() {
     private lateinit var emptyMessage: TextView
 
     private val allOrders = mutableListOf<HistoryOrder>()
-    private val dateFormat = SimpleDateFormat("yyyy年 MM月 dd日", Locale.CHINESE)
+    // Use Locale.getDefault() for system language matching
+    private val dateFormat get() = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,54 +73,31 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun loadSampleOrders() {
         allOrders.clear()
+        // Sample data with generic date format for searching
         allOrders.addAll(listOf(
             HistoryOrder(
                 id = "98562014",
                 customerName = "老板娘",
-                date = "2025年 11月 29日",
-                time = "早上 10 点",
+                date = "29/11/2025",
+                time = "10:00 AM",
                 price = "$15.00",
                 items = listOf("物品 1 x2", "物品 2 x1")
             ),
             HistoryOrder(
                 id = "814134562",
                 customerName = "林先生",
-                date = "2025年 11月 26日",
-                time = "下午 12 点",
+                date = "26/11/2025",
+                time = "12:00 PM",
                 price = "$3.00",
                 items = listOf("物品 3 x1")
             ),
             HistoryOrder(
                 id = "741852963",
                 customerName = "王小姐",
-                date = "2025年 11月 27日",
-                time = "下午 2 点",
+                date = "27/11/2025",
+                time = "02:00 PM",
                 price = "$19.20",
                 items = listOf("物品 1 x3")
-            ),
-            HistoryOrder(
-                id = "159753486",
-                customerName = "老板娘",
-                date = "2025年 11月 28日",
-                time = "早上 9 点",
-                price = "$25.50",
-                items = listOf("物品 4 x2")
-            ),
-            HistoryOrder(
-                id = "357951486",
-                customerName = "陈先生",
-                date = "2025年 11月 29日",
-                time = "下午 1 点",
-                price = "$12.00",
-                items = listOf("物品 2 x2")
-            ),
-            HistoryOrder(
-                id = "246813579",
-                customerName = "林先生",
-                date = "2025年 11月 30日",
-                time = "早上 11 点",
-                price = "$8.40",
-                items = listOf("物品 5 x1")
             )
         ))
     }
@@ -130,11 +108,9 @@ class HistoryActivity : AppCompatActivity() {
         val datePickerDialog = DatePickerDialog(
             this,
             { _, year, month, dayOfMonth ->
-                // Format the selected date
                 val selectedCalendar = Calendar.getInstance()
                 selectedCalendar.set(year, month, dayOfMonth)
                 val formattedDate = dateFormat.format(selectedCalendar.time)
-
                 searchDateInput.setText(formattedDate)
             },
             calendar.get(Calendar.YEAR),
@@ -168,25 +144,24 @@ class HistoryActivity : AppCompatActivity() {
 
         displayOrderId.text = order.id
         displayOrderDate.text = order.date
-        displayCustomerName.text = "顾客: ${order.customerName}"
-        displayOrderTime.text = "时间: ${order.time}"
-        displayOrderPrice.text = "价格: ${order.price}"
+        displayCustomerName.text = getString(R.string.customer_label_prefix) + order.customerName
+        displayOrderTime.text = getString(R.string.time_label_prefix) + order.time
+        displayOrderPrice.text = getString(R.string.price_label_prefix) + order.price
 
         val itemsText = order.items.joinToString("\n") { "• $it" }
         displayOrderItems.text = itemsText
     }
 
     private fun showNoResults() {
-        displayOrderId.text = "无结果"
+        displayOrderId.text = getString(R.string.no_results)
         displayOrderDate.text = ""
         orderDetailsSection.visibility = View.GONE
         emptyMessage.visibility = View.GONE
 
-        Toast.makeText(this, "没有找到匹配的订单", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.no_matching_orders), Toast.LENGTH_SHORT).show()
     }
 }
 
-// Data class for history orders
 data class HistoryOrder(
     val id: String,
     val customerName: String,

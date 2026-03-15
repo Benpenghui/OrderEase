@@ -18,7 +18,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Setting"
+            android:text="@string/settings_title"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,11 +27,11 @@
             app:layout_constraintBottom_toBottomOf="parent"/>
 
         <ImageView
-            android:id="@+id/menu_icon"
+            android:id="@+id/back_btn"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:src="@android:drawable/ic_menu_sort_by_size"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@android:drawable/ic_menu_revert"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="24dp"
-                android:text="Update Info"
+                android:text="@string/update_info"
                 android:textSize="24sp"
                 android:textStyle="bold"/>
 
@@ -72,30 +72,36 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Name"
-                        style="@style/Theme.OrderEase.MatComponent">
+                        android:hint="@string/hint_name"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/shop_name_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="21sp"
-                            android:paddingTop="12dp"
-                            android:paddingBottom="12dp"/>
+                            android:textSize="18sp"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:hint="Number"
-                        style="@style/Theme.OrderEase.MatComponent">
+                        android:hint="@string/hint_number"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/shop_phone_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="21sp"
-                            android:paddingTop="12dp"
-                            android:paddingBottom="12dp"
+                            android:textSize="18sp"
                             android:inputType="phone"/>
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <Button
+                        android:id="@+id/update_info_btn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/update_profile"
+                        android:backgroundTint="#2C2C2C"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -110,27 +116,33 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Notification"
+                    android:text="@string/notification"
                     android:textSize="24sp"
                     android:textStyle="bold"/>
                 <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/notification_switch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"/>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/language_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="18dp">
+                android:padding="18dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Change Language"
+                    android:text="@string/change_language"
                     android:textSize="18sp"
                     android:textStyle="bold"/>
                 <TextView
+                    android:id="@+id/current_language_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="English"
@@ -145,7 +157,7 @@
                 android:layout_marginStart="36dp"
                 android:layout_marginEnd="36dp"
                 android:layout_marginTop="48dp"
-                android:text="Sync Data"
+                android:text="@string/sync_data"
                 android:textSize="24sp"
                 android:backgroundTint="#2C2C2C"/>
 
@@ -157,7 +169,7 @@
                 android:layout_marginEnd="36dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="36dp"
-                android:text="Log Out"
+                android:text="@string/log_out"
                 android:textSize="24sp"
                 android:backgroundTint="#2C2C2C"/>
 

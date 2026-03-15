@@ -3,17 +3,17 @@
     <item
         android:id="@+id/nav_calendar"
         android:icon="@android:drawable/ic_menu_my_calendar"
-        android:title="日历"/>
+        android:title="@string/nav_calendar"/>
     <item
         android:id="@+id/nav_products"
         android:icon="@android:drawable/ic_menu_gallery"
-        android:title="产品管理"/>
+        android:title="@string/nav_products"/>
     <item
         android:id="@+id/nav_analytics"
         android:icon="@android:drawable/ic_menu_info_details"
-        android:title="分析"/>
+        android:title="@string/nav_analytics"/>
     <item
         android:id="@+id/nav_settings"
         android:icon="@android:drawable/ic_menu_preferences"
-        android:title="设置"/>
+        android:title="@string/nav_settings"/>
 </menu>

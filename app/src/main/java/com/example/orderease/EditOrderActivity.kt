@@ -2,11 +2,6 @@ package com.example.orderease
 
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -68,7 +63,7 @@ class EditOrderActivity : AppCompatActivity() {
         if (currentOrderId != -1) {
             loadOrderData()
         } else {
-            Toast.makeText(this, "无效的订单ID", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.invalid_order_id), Toast.LENGTH_SHORT).show()
             finish()
         }
 
@@ -139,7 +134,7 @@ class EditOrderActivity : AppCompatActivity() {
 
     private fun updateOverallTotal() {
         val totalCents = itemsInOrder.sumOf { it.selectedProduct?.cost?.times(it.quantity) ?: 0 }
-        totalPriceText.text = String.format("总数: $ %.2f", totalCents / 100.0)
+        totalPriceText.text = getString(R.string.total_price_label, totalCents / 100.0)
     }
 
     private fun updateOrder() {
@@ -147,7 +142,7 @@ class EditOrderActivity : AppCompatActivity() {
         val phoneNumber = phoneNumberInput.text.toString()
 
         if (customerName.isEmpty()) {
-            Toast.makeText(this, "请输入顾客姓名", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.error_empty_customer_name), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -183,7 +178,7 @@ class EditOrderActivity : AppCompatActivity() {
                 }
             }
 
-            Toast.makeText(this@EditOrderActivity, "订单已更新", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@EditOrderActivity, getString(R.string.order_updated), Toast.LENGTH_SHORT).show()
             finish()
         }
     }

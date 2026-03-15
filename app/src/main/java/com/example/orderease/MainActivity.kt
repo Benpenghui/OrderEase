@@ -151,23 +151,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun showDeleteConfirmationDialog(orderWithDetails: OrderWithCustomerAndItems) {
         AlertDialog.Builder(this)
-            .setTitle("删除订单")
-            .setMessage("您确定要删除订单号 ${orderWithDetails.order.orderId} 吗？")
-            .setPositiveButton("确定") { _, _ ->
+            .setTitle(getString(R.string.delete_btn_text))
+            .setMessage("${getString(R.string.logout_confirm)} ${orderWithDetails.order.orderId}?")
+            .setPositiveButton(getString(R.string.yes)) { _, _ ->
                 deleteOrder(orderWithDetails)
             }
-            .setNegativeButton("取消", null)
+            .setNegativeButton(getString(R.string.no), null)
             .show()
     }
 
     private fun showOrderDetailsDialog(orderWithDetails: OrderWithCustomerAndItems) {
         val sb = StringBuilder()
-        sb.append("订单号: ${orderWithDetails.order.orderId}\n")
-        sb.append("顾客: ${orderWithDetails.customer.name}\n")
-        sb.append("电话: ${orderWithDetails.customer.phone}\n")
+        sb.append("Order ID: ${orderWithDetails.order.orderId}\n")
+        sb.append("${getString(R.string.customer_label_prefix)}${orderWithDetails.customer.name}\n")
+        sb.append("Phone: ${orderWithDetails.customer.phone}\n")
         val collectionSdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-        sb.append("取货日期: ${collectionSdf.format(Date(orderWithDetails.order.collectionDate))}\n\n")
-        sb.append("项目:\n")
+        sb.append("Collection Date: ${collectionSdf.format(Date(orderWithDetails.order.collectionDate))}\n\n")
+        sb.append("Items:\n")
         
         var totalCents = 0
         orderWithDetails.items.forEach { itemWithProduct ->
@@ -177,17 +177,17 @@ class MainActivity : AppCompatActivity() {
             totalCents += linePrice
             sb.append("- ${product.name} x${item.quantity} ($${String.format("%.2f", linePrice / 100.0)})\n")
         }
-        sb.append("\n总价: $${String.format("%.2f", totalCents / 100.0)}")
+        sb.append("\n${getString(R.string.total_price_label).format(totalCents / 100.0)}")
 
         AlertDialog.Builder(this)
-            .setTitle("订单详情")
+            .setTitle("Order Details")
             .setMessage(sb.toString())
-            .setPositiveButton("编辑") { _, _ ->
+            .setPositiveButton("Edit") { _, _ ->
                 val intent = Intent(this, EditOrderActivity::class.java)
                 intent.putExtra("ORDER_ID", orderWithDetails.order.orderId)
                 startActivity(intent)
             }
-            .setNegativeButton("关闭", null)
+            .setNegativeButton("Close", null)
             .show()
     }
 

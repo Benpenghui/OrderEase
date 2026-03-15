@@ -19,7 +19,7 @@ import java.util.*
 
 class AddOrderActivity : AppCompatActivity() {
 
-    private lateinit var customerNameInput: EditText
+    private lateinit var customerNameInput: AutoCompleteTextView
     private lateinit var phoneNumberInput: EditText
     private lateinit var collectionDateInput: EditText
     private lateinit var totalPriceText: TextView
@@ -28,6 +28,7 @@ class AddOrderActivity : AppCompatActivity() {
     private val itemsInOrder = mutableListOf<AddOrderItemUI>()
     private lateinit var adapter: AddOrderAdapter
     private var availableProducts = listOf<Product>()
+    private var allCustomers = listOf<Customer>()
     private var selectedCollectionDate = Calendar.getInstance()
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -59,14 +60,20 @@ class AddOrderActivity : AppCompatActivity() {
         recyclerViewItems.layoutManager = LinearLayoutManager(this)
         recyclerViewItems.adapter = adapter
 
-        // Load products
+        // Load data
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(applicationContext)
+            
+            // Load products
             availableProducts = db.productDao().getProductsByShop(1).first()
             if (availableProducts.isEmpty()) {
                 availableProducts = listOf(Product(101, "Classic Cake", 2500, 1))
             }
             
+            // Load customers for AutoComplete
+            allCustomers = db.customerDao().getAllCustomers().first()
+            setupCustomerAutoComplete()
+
             if (itemsInOrder.isEmpty()) {
                 addNewItem()
             }
@@ -76,6 +83,20 @@ class AddOrderActivity : AppCompatActivity() {
         findViewById<ImageView>(R.id.menu_button).setOnClickListener { finish() }
         findViewById<Button>(R.id.back_to_main_button).setOnClickListener { finish() }
         findViewById<Button>(R.id.save_order_button).setOnClickListener { submitOrder() }
+    }
+
+    private fun setupCustomerAutoComplete() {
+        val customerNames = allCustomers.map { it.name }
+        val autoCompleteAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, customerNames)
+        customerNameInput.setAdapter(autoCompleteAdapter)
+
+        customerNameInput.setOnItemClickListener { parent, _, position, _ ->
+            val selectedName = parent.getItemAtPosition(position) as String
+            val customer = allCustomers.find { it.name == selectedName }
+            customer?.let {
+                phoneNumberInput.setText(it.phone)
+            }
+        }
     }
 
     private fun showDatePicker() {
@@ -109,28 +130,37 @@ class AddOrderActivity : AppCompatActivity() {
 
     fun updateOverallTotal() {
         val totalCents = itemsInOrder.sumOf { it.selectedProduct?.cost?.times(it.quantity) ?: 0 }
-        totalPriceText.text = String.format("总数: $ %.2f", totalCents / 100.0)
+        totalPriceText.text = getString(R.string.total_price_label, totalCents / 100.0)
     }
 
     private fun submitOrder() {
-        val customerName = customerNameInput.text.toString()
-        val phoneNumber = phoneNumberInput.text.toString()
+        val customerName = customerNameInput.text.toString().trim()
+        val phoneNumber = phoneNumberInput.text.toString().trim()
 
         if (customerName.isEmpty()) {
-            Toast.makeText(this, "请输入顾客姓名", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.error_empty_customer_name), Toast.LENGTH_SHORT).show()
             return
         }
 
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(applicationContext)
             
-            val customerId = db.customerDao().insertCustomer(
-                Customer(name = customerName, phone = phoneNumber, notes = "")
-            ).toInt()
+            // 1. Check if customer exists
+            var customerId: Int
+            val existingCustomer = allCustomers.find { 
+                it.name.equals(customerName, ignoreCase = true) && it.phone == phoneNumber 
+            }
 
-            val orderId = (System.currentTimeMillis() % 1000000).toInt()
+            if (existingCustomer != null) {
+                customerId = existingCustomer.customerId
+            } else {
+                customerId = db.customerDao().insertCustomer(
+                    Customer(name = customerName, phone = phoneNumber, notes = "")
+                ).toInt()
+            }
+
+            // 2. Create Order (Let Room auto-generate orderId)
             val order = Order(
-                orderId = orderId,
                 paymentStatus = false,
                 orderDate = System.currentTimeMillis(),
                 collectionDate = selectedCollectionDate.timeInMillis,
@@ -138,22 +168,31 @@ class AddOrderActivity : AppCompatActivity() {
                 shopId = 1,
                 customerId = customerId
             )
-            db.orderDao().insertOrder(order)
+            // Capture the auto-generated ID
+            val newOrderId = db.orderDao().insertOrderWithId(order).toInt()
 
+            // 3. Create Order Items using the NEW ID
             itemsInOrder.forEach { uiItem ->
                 uiItem.selectedProduct?.let { product ->
                     db.orderItemDao().insertOrderItem(
                         OrderItemEntity(
                             quantity = uiItem.quantity,
                             totalPrice = product.cost * uiItem.quantity,
-                            orderId = orderId,
+                            orderId = newOrderId,
                             productId = product.productId
                         )
                     )
                 }
             }
 
-            Toast.makeText(this@AddOrderActivity, "订单已保存", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@AddOrderActivity, getString(R.string.order_saved), Toast.LENGTH_SHORT).show()
+            
+            // Sync to Firebase if online
+            val syncManager = FirebaseSyncManager(applicationContext)
+            if (syncManager.isOnline()) {
+                syncManager.syncLocalToFirebase()
+            }
+            
             finish()
         }
     }
