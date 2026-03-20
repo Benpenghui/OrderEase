@@ -18,7 +18,7 @@ import com.example.orderease.data.local.entities.*
         Payment::class,
         Holiday::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

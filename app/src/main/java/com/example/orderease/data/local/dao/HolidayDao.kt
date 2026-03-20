@@ -17,4 +17,7 @@ interface HolidayDao {
 
     @Query("SELECT COUNT(*) FROM holidays WHERE year = :year")
     suspend fun getHolidayCountByYear(year: Int): Int
+
+    @Query("SELECT * FROM holidays WHERE date >= :dateStr ORDER BY date ASC LIMIT 1")
+    suspend fun getNextHoliday(dateStr: String): Holiday?
 }

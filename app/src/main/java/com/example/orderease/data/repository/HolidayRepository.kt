@@ -29,4 +29,6 @@ class HolidayRepository(private val holidayDao: HolidayDao) {
             e.printStackTrace()
         }
     }
+
+    suspend fun getNextHoliday(dateStr: String): Holiday? = holidayDao.getNextHoliday(dateStr)
 }

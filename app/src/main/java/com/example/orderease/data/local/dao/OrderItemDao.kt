@@ -14,4 +14,13 @@ interface OrderItemDao {
 
     @Delete
     suspend fun deleteOrderItem(orderItem: OrderItem)
+
+    @Query("""
+        UPDATE order_items 
+        SET total_price = quantity * :newPrice 
+        WHERE product_id = :productId AND order_id IN (
+            SELECT order_id FROM orders WHERE collection_date >= :minDate
+        )
+    """)
+    suspend fun updateFutureOrderItemsPrice(productId: Int, newPrice: Int, minDate: Long)
 }

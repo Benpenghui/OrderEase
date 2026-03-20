@@ -77,18 +77,34 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Delete button positioned at bottom right corner without pushing other views -->
-        <ImageButton
-            android:id="@+id/delete_item_btn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+        <!-- Action buttons positioned at bottom right corner -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
-            android:visibility="gone"
-            android:scaleType="centerInside"
-            app:tint="#D32F2F" />
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/edit_item_btn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_edit"
+                android:visibility="gone"
+                android:scaleType="centerInside"
+                app:tint="#2C2C2C" />
+
+            <ImageButton
+                android:id="@+id/delete_item_btn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:visibility="gone"
+                android:scaleType="centerInside"
+                app:tint="#D32F2F" />
+        </LinearLayout>
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

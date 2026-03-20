@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.Customer
-import com.example.orderease.data.local.entities.Order
 import com.example.orderease.data.local.entities.OrderItem as OrderItemEntity
 import com.example.orderease.data.local.entities.Product
 import kotlinx.coroutines.flow.first

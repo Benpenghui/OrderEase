@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.orderease.data.local.entities.Product
 
 class AddOrderAdapter(
@@ -24,6 +25,7 @@ class AddOrderAdapter(
         val itemTotalPrice: TextView = view.findViewById(R.id.itemTotalPrice)
         val addItemButton: ImageButton = view.findViewById(R.id.addItemButton)
         val removeItemButton: ImageButton = view.findViewById(R.id.removeItemButton)
+        val itemImage: ImageView = view.findViewById(R.id.itemImage)
     }
 
     fun setOnPlusClicked(callback: () -> Unit) {
@@ -49,12 +51,16 @@ class AddOrderAdapter(
             holder.itemSpinner.setSelection(currentIndex, false)
         }
 
+        // Load image for initial selection
+        updateItemImage(holder.itemImage, item.selectedProduct)
+
         holder.itemSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
                 val newProduct = products[pos]
                 if (item.selectedProduct != newProduct) {
                     item.selectedProduct = newProduct
                     updateRowTotal(holder, item)
+                    updateItemImage(holder.itemImage, newProduct)
                     onDataChanged()
                 }
             }
@@ -98,6 +104,14 @@ class AddOrderAdapter(
     private fun updateRowTotal(holder: ItemViewHolder, item: AddOrderItemUI) {
         val totalCents = (item.selectedProduct?.cost ?: 0) * item.quantity
         holder.itemTotalPrice.text = String.format("总价: $ %.2f", totalCents / 100.0)
+    }
+
+    private fun updateItemImage(imageView: ImageView, product: Product?) {
+        Glide.with(imageView.context)
+            .load(product?.imagePath)
+            .placeholder(android.R.drawable.ic_menu_gallery)
+            .error(android.R.drawable.ic_menu_gallery)
+            .into(imageView)
     }
 
     override fun getItemCount() = items.size

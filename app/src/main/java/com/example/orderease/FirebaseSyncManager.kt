@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import com.example.orderease.data.local.AppDatabase
+import com.example.orderease.data.local.entities.*
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
@@ -22,39 +23,39 @@ class FirebaseSyncManager(private val context: Context) {
     }
 
     suspend fun syncLocalToFirebase() {
-        if (!isOnline()) {
-            Log.d("Sync", "Offline: Skipping Firebase sync.")
-            return
-        }
+        if (!isOnline()) return
 
         try {
-            Log.d("Sync", "Online: Starting Firebase sync...")
-
-            // 1. Sync Shop
+            Log.d("Sync", "Starting Firebase sync...")
             val shop = db.shopDao().getShop()
-            shop?.let {
-                firestore.collection("shops").document(it.shopId.toString()).set(it).await()
+            shop?.let { currentShop ->
+                firestore.collection("shops").document(currentShop.username).set(currentShop).await()
+
+                // Sync Products - FILTER OUT local paths
+                val products = db.productDao().getProductsByShop(currentShop.shopId).first()
+                products.forEach { product ->
+                    val path = product.imagePath
+                    // Only sync to Firestore if it's a web URL. If it's a local path (/...), sync null.
+                    val syncProduct = if (path != null && path.startsWith("/")) {
+                        product.copy(imagePath = null)
+                    } else {
+                        product
+                    }
+                    firestore.collection("products").document(product.productId.toString()).set(syncProduct).await()
+                }
             }
 
-            // 2. Sync Products
-            val products = db.productDao().getProductsByShop(1).first()
-            products.forEach {
-                firestore.collection("products").document(it.productId.toString()).set(it).await()
-            }
-
-            // 3. Sync Customers
+            // Sync Customers
             val customers = db.customerDao().getAllCustomers().first()
             customers.forEach {
                 firestore.collection("customers").document(it.customerId.toString()).set(it).await()
             }
 
-            // 4. Sync Orders (and their items)
+            // Sync Orders
             val ordersWithDetails = db.orderDao().getOrdersWithDetailsInRange(0, Long.MAX_VALUE).first()
             ordersWithDetails.forEach { detail ->
                 val orderId = detail.order.orderId.toString()
                 firestore.collection("orders").document(orderId).set(detail.order).await()
-                
-                // Sync items as a sub-collection for each order
                 detail.items.forEach { item ->
                     firestore.collection("orders").document(orderId)
                         .collection("items")
@@ -63,10 +64,71 @@ class FirebaseSyncManager(private val context: Context) {
                         .await()
                 }
             }
-
             Log.d("Sync", "Sync successful!")
         } catch (e: Exception) {
             Log.e("Sync", "Sync failed: ${e.message}")
+        }
+    }
+
+    suspend fun syncFirebaseToLocal(username: String) {
+        if (!isOnline()) return
+        try {
+            Log.d("Sync", "Pulling data for user: $username")
+            val shopDoc = firestore.collection("shops").document(username).get().await()
+            if (shopDoc.exists()) {
+                val shop = shopDoc.toObject(Shop::class.java)
+                shop?.let { 
+                    Log.d("Sync", "Found Shop: ${it.name}, ShopId: ${it.shopId}")
+                    db.shopDao().insertShop(it) 
+                    
+                    // Pull Products for this shop
+                    val productsSnapshot = firestore.collection("products")
+                        .whereEqualTo("shopId", it.shopId)
+                        .get().await()
+                    
+                    Log.d("Sync", "Found ${productsSnapshot.size()} products in Cloud")
+                    productsSnapshot.documents.forEach { doc ->
+                        doc.toObject(Product::class.java)?.let { prod -> 
+                            db.productDao().insertProduct(prod) 
+                        }
+                    }
+                }
+            } else {
+                Log.w("Sync", "No shop document found for $username")
+            }
+            
+            // Pull Customers
+            val customersSnapshot = firestore.collection("customers").get().await()
+            Log.d("Sync", "Found ${customersSnapshot.size()} customers in Cloud")
+            customersSnapshot.documents.forEach { doc ->
+                doc.toObject(Customer::class.java)?.let { db.customerDao().insertCustomer(it) }
+            }
+            
+            // Pull Orders
+            val ordersSnapshot = firestore.collection("orders").get().await()
+            Log.d("Sync", "Found ${ordersSnapshot.size()} orders in Cloud")
+            ordersSnapshot.documents.forEach { doc ->
+                val order = doc.toObject(Order::class.java)
+                order?.let {
+                    db.orderDao().insertOrder(it)
+                    val itemsSnapshot = firestore.collection("orders").document(doc.id).collection("items").get().await()
+                    itemsSnapshot.documents.forEach { itemDoc ->
+                        itemDoc.toObject(OrderItem::class.java)?.let { item -> db.orderItemDao().insertOrderItem(item) }
+                    }
+                }
+            }
+            Log.d("Sync", "Cloud to Local sync complete.")
+        } catch (e: Exception) {
+            Log.e("Sync", "Pull sync failed: ${e.message}", e)
+        }
+    }
+
+    suspend fun deleteOrderFromFirebase(orderId: Int) {
+        if (!isOnline()) return
+        try {
+            firestore.collection("orders").document(orderId.toString()).delete().await()
+        } catch (e: Exception) {
+            Log.e("Sync", "Failed to delete order: ${e.message}")
         }
     }
 }

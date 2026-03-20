@@ -93,7 +93,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="总价: $ 0.00"
+                    android:text="@string/item_total_price_label"
                     android:textSize="16sp" />
             </LinearLayout>
         </RelativeLayout>

@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".OrderEaseApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -45,6 +46,10 @@
             android:theme="@style/Theme.OrderEase" />
         <activity
             android:name=".CalendarActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OrderEase" />
+        <activity
+            android:name=".DayOrdersActivity"
             android:exported="false"
             android:theme="@style/Theme.OrderEase" />
         <activity

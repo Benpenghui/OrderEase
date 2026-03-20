@@ -17,8 +17,9 @@ import androidx.room.PrimaryKey
     ]
 )
 data class Product(
-    @PrimaryKey @ColumnInfo(name = "product_id") val productId: Int,
-    val name: String,
-    val cost: Int,
-    @ColumnInfo(name = "shop_id") val shopId: Int
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "product_id") val productId: Int = 0,
+    val name: String = "",
+    val cost: Int = 0,
+    @ColumnInfo(name = "shop_id") val shopId: Int = 1,
+    @ColumnInfo(name = "image_path") val imagePath: String? = null
 )

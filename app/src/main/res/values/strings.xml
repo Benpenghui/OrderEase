@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OrderEase</string>
+    <string name="app_name" translatable="false">OrderEase</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
@@ -10,6 +10,20 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
 
+    <!-- Login Screen -->
+    <string name="login_header_text">Login</string>
+    <string name="login_subtitle_text">Enter your username/phone number\nand password to enter</string>
+    <string name="username_hint">Username/Phone Number</string>
+    <string name="login_btn_text">Login</string>
+    <string name="register_btn_text">Register</string>
+    <string name="or_text">or</string>
+    <string name="google_login_text">Continue with Google</string>
+    <string name="enter_username_error">Enter username</string>
+    <string name="user_found_prompt">User found. Enter password.</string>
+    <string name="user_not_found_prompt">Username available. Please register.</string>
+    <string name="fill_all_fields_error">Please fill all fields correctly</string>
+    <string name="registration_failed">Registration failed</string>
+
     <!-- Navigation Menu -->
     <string name="nav_calendar">Calendar</string>
     <string name="nav_products">Product Management</string>
@@ -18,6 +32,7 @@
 
     <!-- Main Activity -->
     <string name="today_orders_title">Today\'s Orders</string>
+    <string name="week_orders_title">This Week\'s Orders</string>
     <string name="add_order_btn_text">Add</string>
     <string name="delete_btn_text">Delete</string>
     <string name="history_btn_text">History</string>
@@ -102,6 +117,9 @@
     <string name="product_price_label">Price:</string>
     <string name="change_image_btn_text">Change Image</string>
     <string name="update_btn_text">Update</string>
+    <string name="add_new_product">Add New</string>
+    <string name="add_btn_text">Add</string>
+    <string name="product_added">Product Added!</string>
 
     <!-- Settings Strings -->
     <string name="settings_title">Settings</string>
@@ -126,6 +144,10 @@
     <string name="syncing_data">Syncing data...</string>
     <string name="sync_complete">Sync complete!</string>
     <string name="no_internet">No internet connection</string>
+    
+    <string name="date_orders_title">%1$s\'s Orders</string>
+    <string name="view_orders_btn">View Orders</string>
+    <string name="ok">OK</string>
 
     <string name="lorem_ipsum" translatable="false">
         L

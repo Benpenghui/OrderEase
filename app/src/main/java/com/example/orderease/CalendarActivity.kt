@@ -1,5 +1,6 @@
 package com.example.orderease
 
+import android.content.Intent
 import android.graphics.Color
 import android.icu.util.ChineseCalendar
 import android.os.Bundle
@@ -10,7 +11,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.*
 
-class CalendarActivity : AppCompatActivity() {
+class CalendarActivity : BaseActivity() {
 
     private lateinit var calendarRecyclerView: RecyclerView
     private lateinit var monthYearText: TextView
@@ -156,7 +156,7 @@ class CalendarActivity : AppCompatActivity() {
         if (lunarFestiveName != null) {
             message.append("Festive: $lunarFestiveName\n")
         }
-        
+
         if (orderCount > 0) {
             message.append("Orders: $orderCount\n")
             if (breakdown != null) {
@@ -174,11 +174,20 @@ class CalendarActivity : AppCompatActivity() {
             message.append("No special events or orders for this day.")
         }
 
-        AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
             .setTitle("Day Details")
             .setMessage(message.toString())
             .setPositiveButton("OK", null)
-            .show()
+
+        if (orderCount > 0) {
+            builder.setNeutralButton("View Orders") { _, _ ->
+                val intent = Intent(this, DayOrdersActivity::class.java)
+                intent.putExtra("SELECTED_DATE", cal.timeInMillis)
+                startActivity(intent)
+            }
+        }
+
+        builder.show()
     }
 
     private fun getLunarFestiveName(lunarMonth: Int, lunarDay: Int): String? {
@@ -203,7 +212,7 @@ class CalendarActivity : AppCompatActivity() {
         val daysInMonthList = ArrayList<String>()
         val monthCalendar = calendar.clone() as Calendar
         monthCalendar.set(Calendar.DAY_OF_MONTH, 1)
-        
+
         val firstDayOfWeek = monthCalendar.get(Calendar.DAY_OF_WEEK) - 1
         val daysInMonth = monthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
@@ -250,14 +259,14 @@ class CalendarAdapter(
             val day = dayStr.toInt()
             val year = currentMonth.get(Calendar.YEAR)
             val month = currentMonth.get(Calendar.MONTH)
-            
+
             // Set Lunar Text and Check for Lunar Festive Dates
             val cal = Calendar.getInstance()
             cal.set(year, month, day)
             val chineseCalendar = ChineseCalendar(cal.time)
             val lMonth = chineseCalendar.get(ChineseCalendar.MONTH) + 1
             val lDay = chineseCalendar.get(ChineseCalendar.DAY_OF_MONTH)
-            
+
             holder.lunarText.text = if (lDay == 1) "${lMonth}月" else lDay.toString()
 
             val key = String.format("%d-%d-%d", year, month, day)

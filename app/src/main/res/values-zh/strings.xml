@@ -18,6 +18,7 @@
 
     <!-- Main Activity -->
     <string name="today_orders_title">今天的订单</string>
+    <string name="week_orders_title">本周订单</string>
     <string name="add_order_btn_text">加单</string>
     <string name="delete_btn_text">删除</string>
     <string name="history_btn_text">历史</string>
@@ -102,6 +103,9 @@
     <string name="product_price_label">价格:</string>
     <string name="change_image_btn_text">更换图片</string>
     <string name="update_btn_text">更新</string>
+    <string name="add_new_product">添加新产品</string>
+    <string name="add_btn_text">添加</string>
+    <string name="product_added">产品已添加！</string>
 
     <!-- Settings Strings -->
     <string name="settings_title">设置</string>
@@ -126,4 +130,8 @@
     <string name="syncing_data">正在同步数据...</string>
     <string name="sync_complete">同步完成！</string>
     <string name="no_internet">没有网络连接</string>
+    
+    <string name="date_orders_title">%1$s 的订单</string>
+    <string name="view_orders_btn">查看订单</string>
+    <string name="ok">确定</string>
 </resources>

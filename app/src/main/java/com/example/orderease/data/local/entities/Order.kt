@@ -25,10 +25,10 @@ import java.util.Date
 )
 data class Order(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "order_id") val orderId: Int = 0,
-    @ColumnInfo(name = "payment_status") val paymentStatus: Boolean,
-    @ColumnInfo(name = "order_date") val orderDate: Long, // Storing as Long (timestamp)
-    @ColumnInfo(name = "collection_date") val collectionDate: Long,
-    @ColumnInfo(name = "collection_status") val collectionStatus: Boolean,
-    @ColumnInfo(name = "shop_id") val shopId: Int,
-    @ColumnInfo(name = "customer_id") val customerId: Int
+    @ColumnInfo(name = "payment_status") val paymentStatus: Boolean = false,
+    @ColumnInfo(name = "order_date") val orderDate: Long = 0,
+    @ColumnInfo(name = "collection_date") val collectionDate: Long = 0,
+    @ColumnInfo(name = "collection_status") val collectionStatus: Boolean = false,
+    @ColumnInfo(name = "shop_id") val shopId: Int = 1,
+    @ColumnInfo(name = "customer_id") val customerId: Int = 0
 )

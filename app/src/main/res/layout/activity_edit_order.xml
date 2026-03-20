@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="编辑订单"
+                android:text="@string/edit_order_title"
                 android:textColor="#000000"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -71,7 +71,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="顾客名字"
+                        android:text="@string/customer_name_title"
                         android:textSize="18sp" />
 
                     <AutoCompleteTextView
@@ -79,7 +79,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:hint="输入或选择姓名"
+                        android:hint="@string/customer_name_hint"
                         android:minHeight="48dp"
                         android:paddingTop="8dp"
                         android:paddingBottom="8dp"
@@ -94,7 +94,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="电话号码"
+                        android:text="@string/phone_number_title"
                         android:textSize="18sp" />
 
                     <EditText
@@ -102,7 +102,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:hint="输入电话"
+                        android:hint="@string/phone_number_hint"
                         android:inputType="phone"
                         android:minHeight="48dp"
                         android:paddingTop="8dp"
@@ -117,7 +117,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="取货日期"
+                        android:text="@string/collection_date_title"
                         android:textSize="18sp" />
 
                     <EditText
@@ -126,7 +126,7 @@
                         android:layout_height="wrap_content"
                         android:background="@null"
                         android:focusable="false"
-                        android:hint="选择日期"
+                        android:hint="@string/select_date_hint"
                         android:minHeight="48dp"
                         android:paddingTop="8dp"
                         android:paddingBottom="8dp" />
@@ -148,7 +148,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:gravity="center"
-                        android:text="总数: $ 0.00"
+                        android:text="@string/total_price_label"
                         android:textSize="18sp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -165,7 +165,7 @@
         android:layout_marginBottom="0dp"
         android:backgroundTint="#333333"
         android:padding="16dp"
-        android:text="返回主界面"
+        android:text="@string/back_to_main_btn"
         android:textColor="#FFFFFF"
         android:textSize="22sp" />
 
@@ -176,7 +176,7 @@
         android:layout_margin="16dp"
         android:backgroundTint="#333333"
         android:padding="16dp"
-        android:text="Confirm Changes"
+        android:text="@string/confirm_changes_btn"
         android:textColor="#FFFFFF"
         android:textSize="22sp" />
 

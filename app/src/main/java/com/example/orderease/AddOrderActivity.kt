@@ -3,7 +3,6 @@ package com.example.orderease
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +16,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class AddOrderActivity : AppCompatActivity() {
+class AddOrderActivity : BaseActivity() {
 
     private lateinit var customerNameInput: AutoCompleteTextView
     private lateinit var phoneNumberInput: EditText

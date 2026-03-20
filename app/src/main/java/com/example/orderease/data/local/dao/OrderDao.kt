@@ -29,6 +29,22 @@ interface OrderDao {
     @Query("SELECT * FROM orders WHERE collection_date BETWEEN :startDate AND :endDate")
     fun getOrdersWithDetailsInRange(startDate: Long, endDate: Long): Flow<List<OrderWithCustomerAndItems>>
 
+    @Transaction
+    @Query("""
+        SELECT orders.* FROM orders 
+        INNER JOIN customers ON orders.customer_id = customers.customer_id 
+        WHERE customers.name LIKE :name
+    """)
+    fun searchOrdersByName(name: String): Flow<List<OrderWithCustomerAndItems>>
+
+    @Transaction
+    @Query("""
+        SELECT orders.* FROM orders 
+        INNER JOIN customers ON orders.customer_id = customers.customer_id 
+        WHERE customers.name LIKE :name AND orders.collection_date BETWEEN :startDate AND :endDate
+    """)
+    fun searchOrdersByNameAndDate(name: String, startDate: Long, endDate: Long): Flow<List<OrderWithCustomerAndItems>>
+
     @Query("DELETE FROM orders WHERE order_date < :startDate OR order_date > :endDate")
     suspend fun clearOldOrders(startDate: Long, endDate: Long)
 }

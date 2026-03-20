@@ -60,7 +60,6 @@ class SettingsActivity : AppCompatActivity() {
         val currentLocale = AppCompatDelegate.getApplicationLocales()[0]?.language ?: "en"
         currentLanguageText.text = when (currentLocale) {
             "zh" -> "中文"
-            "ms" -> "Malay"
             else -> "English"
         }
     }
@@ -108,8 +107,8 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun showLanguageDialog() {
-        val languages = arrayOf("English", "中文", "Malay")
-        val languageTags = arrayOf("en", "zh", "ms")
+        val languages = arrayOf("English", "中文")
+        val languageTags = arrayOf("en", "zh")
         
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.select_language))

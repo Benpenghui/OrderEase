@@ -16,7 +16,7 @@
             android:id="@+id/day_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="18dp"
             android:textColor="#2C2C2C"
             android:includeFontPadding="false" />
 
@@ -24,7 +24,7 @@
             android:id="@+id/lunar_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="9sp"
+            android:textSize="9dp"
             android:textColor="#757575"
             android:includeFontPadding="false" />
     </LinearLayout>
