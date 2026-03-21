@@ -125,7 +125,7 @@
     <Button
         android:id="@+id/login"
         android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:layout_marginStart="40dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="40dp"
@@ -175,7 +175,7 @@
     <Button
         android:id="@+id/google_login"
         android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:layout_marginStart="40dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="40dp"

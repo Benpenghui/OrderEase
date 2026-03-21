@@ -15,6 +15,7 @@ import com.example.orderease.R
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.*
 import com.example.orderease.databinding.ActivityLoginBinding
+import com.example.orderease.utils.SessionManager
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,10 +28,12 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private var isNewUser = false
     private var isUserChecked = false
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        sessionManager = SessionManager(this)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -67,7 +70,7 @@ class LoginActivity : AppCompatActivity() {
         login.setOnClickListener {
             val user = username.text.toString().trim()
             if (user.isEmpty()) {
-                username.error = "Enter username"
+                username.error = getString(R.string.enter_username_error)
                 return@setOnClickListener
             }
 
@@ -100,17 +103,21 @@ class LoginActivity : AppCompatActivity() {
                     if (doc.exists()) {
                         // User exists, show password only
                         isNewUser = false
+                        binding.loginHeader?.text = getString(R.string.login_header_returning)
+                        binding.loginSubtitle?.text = getString(R.string.login_subtitle_returning)
                         binding.password.visibility = View.VISIBLE
                         binding.login.text = getString(R.string.action_sign_in_short)
-                        Toast.makeText(this@LoginActivity, "User found. Enter password.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@LoginActivity, R.string.user_found_prompt, Toast.LENGTH_SHORT).show()
                     } else {
                         // New user, show all fields
                         isNewUser = true
+                        binding.loginHeader?.text = getString(R.string.login_header_new)
+                        binding.loginSubtitle?.text = getString(R.string.login_subtitle_new)
                         binding.shopName?.visibility = View.VISIBLE
                         binding.phoneNumber?.visibility = View.VISIBLE
                         binding.password.visibility = View.VISIBLE
-                        binding.login.text = "Register"
-                        Toast.makeText(this@LoginActivity, "Username available. Please register.", Toast.LENGTH_SHORT).show()
+                        binding.login.text = getString(R.string.register_btn_text)
+                        Toast.makeText(this@LoginActivity, R.string.user_not_found_prompt, Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
@@ -125,11 +132,11 @@ class LoginActivity : AppCompatActivity() {
     private fun createNewAccount() {
         val user = binding.username.text.toString().trim()
         val pass = binding.password.text.toString()
-        val name = binding.shopName?.text.toString()?.trim() ?: ""
-        val phone = binding.phoneNumber?.text.toString()?.trim() ?: ""
+        val name = binding.shopName?.text.toString().trim()
+        val phone = binding.phoneNumber?.text.toString().trim()
 
         if (name.isEmpty() || phone.isEmpty() || pass.length <= 5) {
-            Toast.makeText(this, "Please fill all fields correctly", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.fill_all_fields_error, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -153,18 +160,20 @@ class LoginActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     binding.loading.visibility = View.GONE
-                    Toast.makeText(this@LoginActivity, "Registration failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@LoginActivity, "${getString(R.string.registration_failed)}: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
     private fun handleLoginSuccess(username: String) {
+        sessionManager.saveUsername(username)
         val syncManager = FirebaseSyncManager(applicationContext)
         lifecycleScope.launch(Dispatchers.IO) {
             if (syncManager.isOnline()) {
                 syncManager.syncFirebaseToLocal(username)
             }
+            
             withContext(Dispatchers.Main) {
                 binding.loading.visibility = View.GONE
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))

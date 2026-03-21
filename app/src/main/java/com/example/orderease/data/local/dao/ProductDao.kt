@@ -15,8 +15,11 @@ interface ProductDao {
     @Delete
     suspend fun deleteProduct(product: Product)
 
-    @Query("SELECT * FROM products WHERE shop_id = :shopId")
+    @Query("SELECT * FROM products WHERE shop_id = :shopId AND is_deleted = 0")
     fun getProductsByShop(shopId: Int): Flow<List<Product>>
+
+    @Query("SELECT * FROM products WHERE shop_id = :shopId")
+    fun getAllProductsByShop(shopId: Int): Flow<List<Product>>
 
     @Query("SELECT * FROM products WHERE product_id = :id")
     suspend fun getProductById(id: Int): Product?

@@ -1,11 +1,13 @@
 package com.example.orderease
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -32,6 +34,7 @@ class ProductManagementActivity : BaseActivity() {
     private lateinit var productImage: ImageView
     private lateinit var changeImageBtn: Button
     private lateinit var updateBtn: Button
+    private lateinit var deleteBtn: ImageButton
     private lateinit var backBtn: Button
 
     private var currentProducts: List<Product> = emptyList()
@@ -48,6 +51,16 @@ class ProductManagementActivity : BaseActivity() {
         }
     }
 
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val path = result.data?.getStringExtra("CROP_PATH")
+            if (path != null) {
+                selectedImageUri = Uri.fromFile(File(path))
+                Glide.with(this).load(selectedImageUri).into(productImage)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_management)
@@ -58,6 +71,7 @@ class ProductManagementActivity : BaseActivity() {
         productImage = findViewById(R.id.product_image)
         changeImageBtn = findViewById(R.id.change_image_btn)
         updateBtn = findViewById(R.id.update_btn)
+        deleteBtn = findViewById(R.id.delete_product_btn)
         backBtn = findViewById(R.id.back_btn)
 
         val db = AppDatabase.getDatabase(this)
@@ -65,6 +79,7 @@ class ProductManagementActivity : BaseActivity() {
         lifecycleScope.launch {
             val shop = db.shopDao().getShop()
             if (shop != null) {
+                // Only show products that are NOT deleted
                 db.productDao().getProductsByShop(shop.shopId).collectLatest { products ->
                     currentProducts = products
                     
@@ -81,18 +96,39 @@ class ProductManagementActivity : BaseActivity() {
                     selectedProduct = null
                     clearFields()
                     updateBtn.text = getString(R.string.add_btn_text)
+                    deleteBtn.visibility = View.GONE
                 } else if (position > 0 && position <= currentProducts.size) {
                     selectedProduct = currentProducts[position - 1]
                     populateFields(selectedProduct!!)
                     updateBtn.text = getString(R.string.update_btn_text)
+                    deleteBtn.visibility = View.VISIBLE
                 }
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        changeImageBtn.setOnClickListener { pickImageLauncher.launch("image/*") }
+        changeImageBtn.setOnClickListener { showImageSourceDialog() }
         updateBtn.setOnClickListener { handleSaveOrUpdate() }
+        deleteBtn.setOnClickListener { showDeleteConfirmation() }
         backBtn.setOnClickListener { finish() }
+    }
+
+    private fun showImageSourceDialog() {
+        val options = arrayOf(
+            getString(R.string.take_photo),
+            getString(R.string.choose_from_gallery)
+        )
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.select_image_source)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> cameraLauncher.launch(Intent(this, CameraActivity::class.java))
+                    1 -> pickImageLauncher.launch("image/*")
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun setupSpinner(products: List<Product>, previouslySelectedId: Int?) {
@@ -171,7 +207,8 @@ class ProductManagementActivity : BaseActivity() {
                     name = newName,
                     cost = newPriceCents,
                     shopId = shopId,
-                    imagePath = finalImagePath
+                    imagePath = finalImagePath,
+                    isDeleted = false
                 )
                 db.productDao().insertProduct(newProduct)
             } else {
@@ -208,6 +245,37 @@ class ProductManagementActivity : BaseActivity() {
                 Toast.makeText(this@ProductManagementActivity, message, Toast.LENGTH_SHORT).show()
                 
                 if (selectedProduct == null) clearFields()
+            }
+        }
+    }
+
+    private fun showDeleteConfirmation() {
+        val product = selectedProduct ?: return
+        AlertDialog.Builder(this)
+            .setTitle(R.string.delete_btn_text)
+            .setMessage(getString(R.string.delete_product_confirm, product.name))
+            .setPositiveButton(R.string.yes) { _, _ ->
+                softDeleteCurrentProduct(product)
+            }
+            .setNegativeButton(R.string.no, null)
+            .show()
+    }
+
+    private fun softDeleteCurrentProduct(product: Product) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(this@ProductManagementActivity)
+            // Perform soft delete by updating isDeleted flag
+            val deletedProduct = product.copy(isDeleted = true)
+            db.productDao().updateProduct(deletedProduct)
+            
+            // Sync with Firebase to reflect deletion in cloud
+            val syncManager = FirebaseSyncManager(this@ProductManagementActivity)
+            syncManager.syncLocalToFirebase()
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@ProductManagementActivity, R.string.product_deleted, Toast.LENGTH_SHORT).show()
+                productSpinner.setSelection(0)
+                clearFields()
             }
         }
     }

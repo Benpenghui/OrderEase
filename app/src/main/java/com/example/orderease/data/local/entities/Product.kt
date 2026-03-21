@@ -21,5 +21,6 @@ data class Product(
     val name: String = "",
     val cost: Int = 0,
     @ColumnInfo(name = "shop_id") val shopId: Int = 1,
-    @ColumnInfo(name = "image_path") val imagePath: String? = null
+    @ColumnInfo(name = "image_path") val imagePath: String? = null,
+    @ColumnInfo(name = "is_deleted") val isDeleted: Boolean = false
 )

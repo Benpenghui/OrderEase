@@ -11,6 +11,7 @@ import com.example.orderease.data.local.entities.Customer
 import com.example.orderease.data.local.entities.Order
 import com.example.orderease.data.local.entities.OrderItem as OrderItemEntity
 import com.example.orderease.data.local.entities.Product
+import com.example.orderease.utils.SessionManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -23,6 +24,7 @@ class AddOrderActivity : BaseActivity() {
     private lateinit var collectionDateInput: EditText
     private lateinit var totalPriceText: TextView
     private lateinit var recyclerViewItems: RecyclerView
+    private lateinit var sessionManager: SessionManager
 
     private val itemsInOrder = mutableListOf<AddOrderItemUI>()
     private lateinit var adapter: AddOrderAdapter
@@ -35,6 +37,7 @@ class AddOrderActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_order)
 
+        sessionManager = SessionManager(this)
         customerNameInput = findViewById(R.id.customer_name_input)
         phoneNumberInput = findViewById(R.id.phone_number_input)
         collectionDateInput = findViewById(R.id.collection_date_input)
@@ -63,11 +66,13 @@ class AddOrderActivity : BaseActivity() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(applicationContext)
             
-            // Load products
-            availableProducts = db.productDao().getProductsByShop(1).first()
-            if (availableProducts.isEmpty()) {
-                availableProducts = listOf(Product(101, "Classic Cake", 2500, 1))
-            }
+            // Get current shop ID
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            val currentShopId = shop?.shopId ?: 1
+
+            // Load products - ONLY show active ones
+            availableProducts = db.productDao().getProductsByShop(currentShopId).first()
             
             // Load customers for AutoComplete
             allCustomers = db.customerDao().getAllCustomers().first()
@@ -144,6 +149,11 @@ class AddOrderActivity : BaseActivity() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(applicationContext)
             
+            // Get current shop ID
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            val currentShopId = shop?.shopId ?: 1
+
             // 1. Check if customer exists
             var customerId: Int
             val existingCustomer = allCustomers.find { 
@@ -164,7 +174,7 @@ class AddOrderActivity : BaseActivity() {
                 orderDate = System.currentTimeMillis(),
                 collectionDate = selectedCollectionDate.timeInMillis,
                 collectionStatus = false,
-                shopId = 1,
+                shopId = currentShopId,
                 customerId = customerId
             )
             // Capture the auto-generated ID

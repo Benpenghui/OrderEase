@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" />
 
     <application
         android:name=".OrderEaseApplication"
@@ -43,6 +45,11 @@
         <activity
             android:name=".ProductManagementActivity"
             android:exported="false"
+            android:theme="@style/Theme.OrderEase" />
+        <activity
+            android:name=".CameraActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.OrderEase" />
         <activity
             android:name=".CalendarActivity"

@@ -13,6 +13,10 @@
     <!-- Login Screen -->
     <string name="login_header_text">Login</string>
     <string name="login_subtitle_text">Enter your username/phone number\nand password to enter</string>
+    <string name="login_header_returning">Welcome Back</string>
+    <string name="login_subtitle_returning">Enter your password to continue</string>
+    <string name="login_header_new">Create Account</string>
+    <string name="login_subtitle_new">Please fill in the details to register</string>
     <string name="username_hint">Username/Phone Number</string>
     <string name="login_btn_text">Login</string>
     <string name="register_btn_text">Register</string>
@@ -120,6 +124,18 @@
     <string name="add_new_product">Add New</string>
     <string name="add_btn_text">Add</string>
     <string name="product_added">Product Added!</string>
+    <string name="delete_product_confirm">Are you sure you want to delete %1$s? This will remove it from all existing orders!</string>
+    <string name="product_deleted">Product deleted</string>
+    <string name="no_products_title">No Products Found</string>
+    <string name="no_products_message">You haven\'t added any products yet. Please add at least one product to start taking orders.</string>
+    <string name="add_product_now">Add Product Now</string>
+    <string name="select_image_source">Select Image Source</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="choose_from_gallery">Choose from Gallery</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Camera Activity -->
+    <string name="center_item_instruction">Fit the item into the box</string>
 
     <!-- Settings Strings -->
     <string name="settings_title">Settings</string>

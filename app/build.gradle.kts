@@ -40,6 +40,14 @@ android {
         compose = true
         viewBinding = true
     }
+    
+    packaging {
+        jniLibs {
+            // This ensures native libraries are aligned to 16KB boundaries
+            // required for Android 15+ device compatibility.
+            useLegacyPackaging = true
+        }
+    }
 }
 
 dependencies {
@@ -81,6 +89,13 @@ dependencies {
     // Glide
     implementation(libs.glide)
     kapt(libs.glide.compiler)
+
+    // CameraX
+    implementation(libs.camera.core)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
+    implementation(libs.guava)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

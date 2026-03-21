@@ -3,14 +3,15 @@
     <string name="title_activity_login">登录界面</string>
     <string name="prompt_username">用户名</string>
     <string name="prompt_password">密码</string>
-    <string name="action_sign_in">登录或注册</string>
-    <string name="action_sign_in_short">登录</string>
+    <string name="action_sign_in">登入或注册</string>
+    <string name="action_sign_in_short">登入</string>
     <string name="welcome">"欢迎 !"</string>
     <string name="invalid_username">无效的用户名</string>
     <string name="invalid_password">密码必须大于5位字符</string>
     <string name="login_failed">"登录失败"</string>
 
     <!-- Navigation Menu -->
+    <string name="registration_failed">"注册失败 "</string>
     <string name="nav_calendar">日历</string>
     <string name="nav_products">产品管理</string>
     <string name="nav_analytics">数据分析</string>
@@ -106,6 +107,18 @@
     <string name="add_new_product">添加新产品</string>
     <string name="add_btn_text">添加</string>
     <string name="product_added">产品已添加！</string>
+    <string name="delete_product_confirm">您确定要删除 %1$s 吗？这将从所有现有订单中移除该商品！</string>
+    <string name="product_deleted">产品已删除</string>
+    <string name="no_products_title">未找到产品</string>
+    <string name="no_products_message">您尚未添加任何产品。请至少添加一件产品才能开始接受订单。</string>
+    <string name="add_product_now">现在添加产品</string>
+    <string name="select_image_source">选择图片来源</string>
+    <string name="take_photo">拍照</string>
+    <string name="choose_from_gallery">从相册选择</string>
+    <string name="cancel">取消</string>
+
+    <!-- Camera Activity -->
+    <string name="center_item_instruction">将物品放入框内</string>
 
     <!-- Settings Strings -->
     <string name="settings_title">设置</string>
@@ -134,4 +147,19 @@
     <string name="date_orders_title">%1$s 的订单</string>
     <string name="view_orders_btn">查看订单</string>
     <string name="ok">确定</string>
+    <string name="login_header_text">登录</string>
+    <string name="login_subtitle_text">请输入您的用户名/电话号码</string>
+    <string name="login_header_returning">欢迎回来</string>
+    <string name="login_subtitle_returning">请输入密码以继续</string>
+    <string name="login_header_new">创建账户</string>
+    <string name="login_subtitle_new">请填写详细信息进行注册</string>
+    <string name="username_hint">用户名/电话号码</string>
+    <string name="login_btn_text">登录</string>
+    <string name="register_btn_text">注册</string>
+    <string name="or_text">或</string>
+    <string name="google_login_text">继续使用 Google</string>
+    <string name="enter_username_error">请输入用户名</string>
+    <string name="user_found_prompt">用户已找到。请输入密码。</string>
+    <string name="user_not_found_prompt">用户名可用，请注册。</string>
+    <string name="fill_all_fields_error">请正确填写所有字段。</string>
 </resources>

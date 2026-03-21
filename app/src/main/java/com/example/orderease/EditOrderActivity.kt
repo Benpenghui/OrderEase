@@ -11,6 +11,7 @@ import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.Customer
 import com.example.orderease.data.local.entities.OrderItem as OrderItemEntity
 import com.example.orderease.data.local.entities.Product
+import com.example.orderease.utils.SessionManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -23,6 +24,7 @@ class EditOrderActivity : AppCompatActivity() {
     private lateinit var collectionDateInput: EditText
     private lateinit var totalPriceText: TextView
     private lateinit var recyclerViewItems: RecyclerView
+    private lateinit var sessionManager: SessionManager
 
     private val itemsInOrder = mutableListOf<AddOrderItemUI>()
     private lateinit var adapter: AddOrderAdapter
@@ -35,6 +37,7 @@ class EditOrderActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_order)
 
+        sessionManager = SessionManager(this)
         customerNameInput = findViewById(R.id.customer_name_input)
         phoneNumberInput = findViewById(R.id.phone_number_input)
         collectionDateInput = findViewById(R.id.collection_date_input)
@@ -77,10 +80,13 @@ class EditOrderActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(applicationContext)
             
-            availableProducts = db.productDao().getProductsByShop(1).first()
-            if (availableProducts.isEmpty()) {
-                availableProducts = listOf(Product(101, "Classic Cake", 2500, 1))
-            }
+            // Get current shop ID
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            val currentShopId = shop?.shopId ?: 1
+
+            // Load products - ONLY show active ones for selection
+            availableProducts = db.productDao().getProductsByShop(currentShopId).first()
 
             val orderWithDetails = db.orderDao().getOrdersWithDetailsInRange(0, Long.MAX_VALUE).first()
                 .find { it.order.orderId == currentOrderId }
@@ -94,6 +100,7 @@ class EditOrderActivity : AppCompatActivity() {
 
                 itemsInOrder.clear()
                 details.items.forEach { itemWithProduct ->
+                    // Even if product is soft-deleted, we still show it in the order summary
                     itemsInOrder.add(AddOrderItemUI(itemWithProduct.product, itemWithProduct.orderItem.quantity))
                 }
                 adapter.notifyDataSetChanged()
@@ -178,6 +185,13 @@ class EditOrderActivity : AppCompatActivity() {
             }
 
             Toast.makeText(this@EditOrderActivity, getString(R.string.order_updated), Toast.LENGTH_SHORT).show()
+            
+            // Sync to Firebase if online
+            val syncManager = FirebaseSyncManager(applicationContext)
+            if (syncManager.isOnline()) {
+                syncManager.syncLocalToFirebase()
+            }
+
             finish()
         }
     }

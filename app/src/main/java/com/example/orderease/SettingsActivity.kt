@@ -11,6 +11,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.ui.login.LoginActivity
+import com.example.orderease.utils.SessionManager
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
@@ -20,11 +21,13 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var shopPhoneInput: TextInputEditText
     private lateinit var currentLanguageText: TextView
     private val db by lazy { AppDatabase.getDatabase(this) }
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
+        sessionManager = SessionManager(this)
         shopNameInput = findViewById(R.id.shop_name_input)
         shopPhoneInput = findViewById(R.id.shop_phone_input)
         currentLanguageText = findViewById(R.id.current_language_text)
@@ -66,10 +69,20 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun loadShopInfo() {
         lifecycleScope.launch {
-            val shop = db.shopDao().getShop()
-            shop?.let {
-                shopNameInput.setText(it.name)
-                shopPhoneInput.setText(it.phoneNumber)
+            val username = sessionManager.getUsername()
+            if (username != null) {
+                val shop = db.shopDao().getShopByUsername(username)
+                shop?.let {
+                    shopNameInput.setText(it.name)
+                    shopPhoneInput.setText(it.phoneNumber)
+                }
+            } else {
+                // Fallback if session is missing for some reason
+                val shop = db.shopDao().getShop()
+                shop?.let {
+                    shopNameInput.setText(it.name)
+                    shopPhoneInput.setText(it.phoneNumber)
+                }
             }
         }
     }
@@ -84,7 +97,13 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            val shop = db.shopDao().getShop()
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) {
+                db.shopDao().getShopByUsername(username)
+            } else {
+                db.shopDao().getShop()
+            }
+            
             shop?.let {
                 val updatedShop = it.copy(name = newName, phoneNumber = newPhone)
                 db.shopDao().updateShop(updatedShop)
@@ -115,8 +134,6 @@ class SettingsActivity : AppCompatActivity() {
             .setItems(languages) { _, which ->
                 val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(languageTags[which])
                 AppCompatDelegate.setApplicationLocales(appLocale)
-                // Note: AppCompatDelegate.setApplicationLocales automatically recreates the activity
-                // to apply the new locale, so the UI will update itself.
             }
             .show()
     }
@@ -133,6 +150,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun performLogout() {
+        sessionManager.clearSession()
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

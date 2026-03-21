@@ -21,11 +21,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.OrderWithCustomerAndItems
 import com.example.orderease.data.repository.HolidayRepository
+import com.example.orderease.utils.SessionManager
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -45,6 +48,7 @@ class MainActivity : BaseActivity() {
     private var showingToday = true // Toggle state
     
     private lateinit var holidayRepository: HolidayRepository
+    private lateinit var sessionManager: SessionManager
 
     private val onBackPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
@@ -61,6 +65,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        sessionManager = SessionManager(this)
         val db = AppDatabase.getDatabase(this)
         holidayRepository = HolidayRepository(db.holidayDao())
 
@@ -134,6 +139,36 @@ class MainActivity : BaseActivity() {
         findViewById<Button>(R.id.history_btn).setOnClickListener {
             startActivity(Intent(this, HistoryActivity::class.java))
         }
+
+        checkProductsExist()
+    }
+
+    private fun checkProductsExist() {
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(this@MainActivity)
+            val username = sessionManager.getUsername() ?: return@launch
+            val shop = db.shopDao().getShopByUsername(username)
+            val hasProducts = if (shop != null) {
+                db.productDao().getProductsByShop(shop.shopId).first().isNotEmpty()
+            } else false
+
+            if (!hasProducts) {
+                showNoProductsDialog()
+            }
+        }
+    }
+
+    private fun showNoProductsDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.no_products_title)
+            .setMessage(R.string.no_products_message)
+            .setCancelable(false)
+            .setPositiveButton(R.string.add_product_now) { _, _ ->
+                val intent = Intent(this, ProductManagementActivity::class.java)
+                startActivity(intent)
+            }
+            .setNegativeButton(R.string.ok, null)
+            .show()
     }
 
     private fun toggleOrderView() {
