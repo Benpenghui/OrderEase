@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.OrderWithCustomerAndItems
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -48,6 +49,8 @@ class DayOrdersActivity : BaseActivity() {
             val intent = Intent(this, EditOrderActivity::class.java)
             intent.putExtra("ORDER_ID", orderToEdit.order.orderId)
             startActivity(intent)
+        }, { orderToMarkPaid ->
+            markOrderAsPaid(orderToMarkPaid)
         })
         recyclerView.adapter = orderAdapter
 
@@ -119,7 +122,11 @@ class DayOrdersActivity : BaseActivity() {
         sb.append(getString(R.string.customer_label_prefix)).append("${orderWithDetails.customer.name}\n")
         sb.append(getString(R.string.phone_label)).append("${orderWithDetails.customer.phone}\n")
         val collectionSdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-        sb.append(getString(R.string.collection_date_label)).append("${collectionSdf.format(Date(orderWithDetails.order.collectionDate))}\n\n")
+        sb.append(getString(R.string.collection_date_label)).append("${collectionSdf.format(Date(orderWithDetails.order.collectionDate))}\n")
+        
+        val status = if (orderWithDetails.order.paymentStatus) getString(R.string.payment_paid) else getString(R.string.payment_unpaid)
+        sb.append(getString(R.string.payment_status_label)).append(status).append("\n\n")
+        
         sb.append(getString(R.string.items_label)).append("\n")
         
         var totalCents = 0
@@ -146,8 +153,22 @@ class DayOrdersActivity : BaseActivity() {
 
     private fun deleteOrder(orderWithDetails: OrderWithCustomerAndItems) {
         val db = AppDatabase.getDatabase(this)
-        lifecycleScope.launch {
+        val syncManager = FirebaseSyncManager(this)
+        lifecycleScope.launch(Dispatchers.IO) {
             db.orderDao().deleteOrder(orderWithDetails.order)
+            syncManager.deleteOrderFromFirebase(orderWithDetails.order.orderId)
+        }
+    }
+
+    private fun markOrderAsPaid(orderWithDetails: OrderWithCustomerAndItems) {
+        val db = AppDatabase.getDatabase(this)
+        val syncManager = FirebaseSyncManager(this)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val updatedOrder = orderWithDetails.order.copy(paymentStatus = true)
+            db.orderDao().updateOrder(updatedOrder)
+            if (syncManager.isOnline()) {
+                syncManager.syncLocalToFirebase()
+            }
         }
     }
 }

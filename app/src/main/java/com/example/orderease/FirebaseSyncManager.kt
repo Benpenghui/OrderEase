@@ -111,9 +111,19 @@ class FirebaseSyncManager(private val context: Context) {
                 val order = doc.toObject(Order::class.java)
                 order?.let {
                     db.orderDao().insertOrder(it)
-                    val itemsSnapshot = firestore.collection("orders").document(doc.id).collection("items").get().await()
+                    // Fix: Pull order items from the "items" subcollection
+                    val itemsSnapshot = firestore.collection("orders")
+                        .document(doc.id)
+                        .collection("items")
+                        .get()
+                        .await()
+                    
+                    Log.d("Sync", "Found ${itemsSnapshot.size()} items for order ${doc.id}")
                     itemsSnapshot.documents.forEach { itemDoc ->
-                        itemDoc.toObject(OrderItem::class.java)?.let { item -> db.orderItemDao().insertOrderItem(item) }
+                        val item = itemDoc.toObject(OrderItem::class.java)
+                        if (item != null) {
+                            db.orderItemDao().insertOrderItem(item)
+                        }
                     }
                 }
             }

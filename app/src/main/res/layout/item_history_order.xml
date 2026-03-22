@@ -77,13 +77,35 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Action buttons positioned at bottom right corner -->
+        <!-- Action buttons and Status -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/payment_done_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/payment_done"
+                android:textColor="#4CAF50"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone"/>
+
+            <ImageButton
+                android:id="@+id/payment_btn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/payment_btn_bg"
+                android:src="@drawable/ic_check"
+                android:padding="8dp"
+                android:scaleType="centerInside"
+                android:visibility="visible"/>
 
             <ImageButton
                 android:id="@+id/edit_item_btn"

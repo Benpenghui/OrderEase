@@ -162,4 +162,8 @@
     <string name="user_found_prompt">用户已找到。请输入密码。</string>
     <string name="user_not_found_prompt">用户名可用，请注册。</string>
     <string name="fill_all_fields_error">请正确填写所有字段。</string>
+    <string name="payment_status_label">付款: </string>
+    <string name="payment_paid">已付</string>
+    <string name="payment_unpaid">未付</string>
+    <string name="payment_done">完成</string>
 </resources>

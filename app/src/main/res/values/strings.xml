@@ -75,7 +75,7 @@
     <string name="phone_number_hint">Enter phone</string>
     <string name="collection_date_title">Collection Date</string>
     <string name="total_price_label">Total: $ %1$.2f</string>
-    <string name="item_total_price_label">Total: $ %1$.2f</string>
+    <string name="item_total_price_label">Item Total: $ %1$.2f</string>
     <string name="back_to_main_btn">Back to Main</string>
     <string name="save_order_btn">Save Order</string>
     <string name="confirm_changes_btn">Confirm Changes</string>
@@ -168,4 +168,8 @@
     <string name="lorem_ipsum" translatable="false">
         L
     </string>
+    <string name="payment_status_label">Payment: </string>
+    <string name="payment_paid">Paid</string>
+    <string name="payment_unpaid">Unpaid</string>
+    <string name="payment_done">Done</string>
 </resources>

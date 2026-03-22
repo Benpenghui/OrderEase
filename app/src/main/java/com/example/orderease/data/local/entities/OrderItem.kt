@@ -24,8 +24,8 @@ import androidx.room.PrimaryKey
 )
 data class OrderItem(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "order_item_id") val orderItemId: Int = 0,
-    val quantity: Int,
-    @ColumnInfo(name = "total_price") val totalPrice: Int,
-    @ColumnInfo(name = "order_id") val orderId: Int,
-    @ColumnInfo(name = "product_id") val productId: Int
+    val quantity: Int = 0,
+    @ColumnInfo(name = "total_price") val totalPrice: Int = 0,
+    @ColumnInfo(name = "order_id") val orderId: Int = 0,
+    @ColumnInfo(name = "product_id") val productId: Int = 0
 )

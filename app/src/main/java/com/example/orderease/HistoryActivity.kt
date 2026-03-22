@@ -89,7 +89,7 @@ class HistoryActivity : BaseActivity() {
 
     private fun showDatePicker() {
         val calendar = selectedDate ?: Calendar.getInstance()
-        DatePickerDialog(
+        val dialog = DatePickerDialog(
             this,
             { _, year, month, day ->
                 val newDate = Calendar.getInstance()
@@ -100,7 +100,10 @@ class HistoryActivity : BaseActivity() {
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        )
+        // Prevent selection of future dates
+        dialog.datePicker.maxDate = System.currentTimeMillis()
+        dialog.show()
     }
 
     private fun performSearch() {
@@ -140,7 +143,7 @@ class HistoryActivity : BaseActivity() {
         sb.append("Order ID: ${orderWithDetails.order.orderId}\n")
         sb.append("${getString(R.string.customer_label_prefix)}${orderWithDetails.customer.name}\n")
         sb.append("Phone: ${orderWithDetails.customer.phone}\n")
-        val collectionSdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val collectionSdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         sb.append("Collection Date: ${collectionSdf.format(Date(orderWithDetails.order.collectionDate))}\n\n")
         sb.append("Items:\n")
         

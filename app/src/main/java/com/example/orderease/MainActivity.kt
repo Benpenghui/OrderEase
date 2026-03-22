@@ -97,6 +97,8 @@ class MainActivity : BaseActivity() {
             val intent = Intent(this, EditOrderActivity::class.java)
             intent.putExtra("ORDER_ID", orderToEdit.order.orderId)
             startActivity(intent)
+        }, { orderToMarkPaid ->
+            markOrderAsPaid(orderToMarkPaid)
         })
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = orderAdapter
@@ -372,12 +374,16 @@ class MainActivity : BaseActivity() {
 
     private fun showOrderDetailsDialog(orderWithDetails: OrderWithCustomerAndItems) {
         val sb = StringBuilder()
-        sb.append("Order ID: ${orderWithDetails.order.orderId}\n")
-        sb.append("${getString(R.string.customer_label_prefix)}${orderWithDetails.customer.name}\n")
-        sb.append("Phone: ${orderWithDetails.customer.phone}\n")
+        sb.append(getString(R.string.order_id_label)).append("${orderWithDetails.order.orderId}\n")
+        sb.append(getString(R.string.customer_label_prefix)).append("${orderWithDetails.customer.name}\n")
+        sb.append(getString(R.string.phone_label)).append("${orderWithDetails.customer.phone}\n")
         val collectionSdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-        sb.append("Collection Date: ${collectionSdf.format(Date(orderWithDetails.order.collectionDate))}\n\n")
-        sb.append("Items:\n")
+        sb.append(getString(R.string.collection_date_label)).append("${collectionSdf.format(Date(orderWithDetails.order.collectionDate))}\n")
+        
+        val status = if (orderWithDetails.order.paymentStatus) getString(R.string.payment_paid) else getString(R.string.payment_unpaid)
+        sb.append(getString(R.string.payment_status_label)).append(status).append("\n\n")
+        
+        sb.append(getString(R.string.items_label)).append("\n")
         
         var totalCents = 0
         orderWithDetails.items.forEach { itemWithProduct ->
@@ -390,14 +396,14 @@ class MainActivity : BaseActivity() {
         sb.append("\n${getString(R.string.total_price_label).format(totalCents / 100.0)}")
 
         AlertDialog.Builder(this)
-            .setTitle("Order Details")
+            .setTitle(getString(R.string.order_details_title))
             .setMessage(sb.toString())
-            .setPositiveButton("Edit") { _, _ ->
+            .setPositiveButton(getString(R.string.edit_btn)) { _, _ ->
                 val intent = Intent(this, EditOrderActivity::class.java)
                 intent.putExtra("ORDER_ID", orderWithDetails.order.orderId)
                 startActivity(intent)
             }
-            .setNegativeButton("Close", null)
+            .setNegativeButton(getString(R.string.close_btn), null)
             .show()
     }
 
@@ -409,13 +415,26 @@ class MainActivity : BaseActivity() {
             syncManager.deleteOrderFromFirebase(orderWithDetails.order.orderId)
         }
     }
+
+    private fun markOrderAsPaid(orderWithDetails: OrderWithCustomerAndItems) {
+        val db = AppDatabase.getDatabase(this)
+        val syncManager = FirebaseSyncManager(this)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val updatedOrder = orderWithDetails.order.copy(paymentStatus = true)
+            db.orderDao().updateOrder(updatedOrder)
+            if (syncManager.isOnline()) {
+                syncManager.syncLocalToFirebase()
+            }
+        }
+    }
 }
 
 class OrderAdapter(
     private var orders: List<OrderWithCustomerAndItems>,
     private val onDeleteClick: (OrderWithCustomerAndItems) -> Unit,
     private val onItemClick: (OrderWithCustomerAndItems) -> Unit,
-    private val onEditClick: (OrderWithCustomerAndItems) -> Unit
+    private val onEditClick: (OrderWithCustomerAndItems) -> Unit,
+    private val onPaymentClick: (OrderWithCustomerAndItems) -> Unit
 ) : RecyclerView.Adapter<OrderAdapter.OrderViewHolder>() {
 
     private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -430,6 +449,8 @@ class OrderAdapter(
         val orderPrice: TextView = view.findViewById(R.id.order_price)
         val deleteBtn: ImageButton = view.findViewById(R.id.delete_item_btn)
         val editBtn: ImageButton = view.findViewById(R.id.edit_item_btn)
+        val paymentBtn: ImageButton = view.findViewById(R.id.payment_btn)
+        val paymentDoneText: TextView = view.findViewById(R.id.payment_done_text)
     }
 
     fun updateOrders(newOrders: List<OrderWithCustomerAndItems>) {
@@ -479,6 +500,18 @@ class OrderAdapter(
         holder.editBtn.visibility = if (isEditMode) View.VISIBLE else View.GONE
         holder.editBtn.setOnClickListener {
             onEditClick(orderWithDetails)
+        }
+
+        // Payment status logic
+        if (order.paymentStatus) {
+            holder.paymentBtn.visibility = View.GONE
+            holder.paymentDoneText.visibility = View.VISIBLE
+        } else {
+            holder.paymentBtn.visibility = if (isDeleteMode || isEditMode) View.GONE else View.VISIBLE
+            holder.paymentDoneText.visibility = View.GONE
+            holder.paymentBtn.setOnClickListener {
+                onPaymentClick(orderWithDetails)
+            }
         }
 
         holder.itemView.setOnClickListener {

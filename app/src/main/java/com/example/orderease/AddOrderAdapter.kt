@@ -103,7 +103,8 @@ class AddOrderAdapter(
 
     private fun updateRowTotal(holder: ItemViewHolder, item: AddOrderItemUI) {
         val totalCents = (item.selectedProduct?.cost ?: 0) * item.quantity
-        holder.itemTotalPrice.text = String.format("总价: $ %.2f", totalCents / 100.0)
+        val context = holder.itemView.context
+        holder.itemTotalPrice.text = context.getString(R.string.item_total_price_label, totalCents / 100.0)
     }
 
     private fun updateItemImage(imageView: ImageView, product: Product?) {
