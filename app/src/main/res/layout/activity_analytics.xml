@@ -49,8 +49,10 @@
             android:padding="24dp">
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/prediction_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp">
 
@@ -58,25 +60,95 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
-                    android:gravity="center_horizontal">
+                    android:padding="24dp">
 
-                    <Spinner
-                        android:id="@+id/food_item_spinner"
+                    <!-- Title row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Today's Prediction"
+                            android:textSize="21sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/prediction_tier_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Regular"
+                            android:textSize="13sp"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:background="@drawable/rounded_border_placeholder"
+                            android:textColor="#666666"/>
+                    </LinearLayout>
+
+                    <!-- Date -->
+                    <TextView
+                        android:id="@+id/prediction_date_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:minWidth="200dp"
-                        android:minHeight="48dp"/>
+                        android:text="Mon, 1 Jan 2024"
+                        android:textSize="14sp"
+                        android:textColor="#888888"
+                        android:layout_marginBottom="8dp"/>
 
-                    <!-- Placeholder for Chart -->
-                    <View
+                    <!-- Lunar info -->
+                    <TextView
+                        android:id="@+id/prediction_lunar_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lunar 1月 Day 8 · First Quarter"
+                        android:textSize="14sp"
+                        android:textColor="#888888"
+                        android:layout_marginBottom="8dp"/>
+
+                    <!-- Festival name (hidden when no festival) -->
+                    <TextView
+                        android:id="@+id/prediction_festival_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Chinese New Year's Eve"
+                        android:textSize="14sp"
+                        android:textColor="#C0392B"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="gone"/>
+
+                    <!-- Predicted qty — large number -->
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="250dp"
-                        android:layout_marginTop="16dp"
-                        android:background="#FAFAFA"/>
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Predicted Orders"
+                            android:textSize="16sp"/>
+
+                        <TextView
+                            android:id="@+id/prediction_qty_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="36sp"
+                            android:textStyle="bold"
+                            android:textColor="#2C3E50"/>
+                    </LinearLayout>
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

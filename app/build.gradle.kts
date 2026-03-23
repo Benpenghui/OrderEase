@@ -97,6 +97,8 @@ dependencies {
     implementation(libs.camera.view)
     implementation(libs.guava)
 
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.17.3")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

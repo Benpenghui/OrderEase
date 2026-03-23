@@ -1,0 +1,89 @@
+{
+  "numerical_features": [
+    "Is Weekend",
+    "Greg. Month",
+    "Lunar Month",
+    "Lunar Day",
+    "Is 1st/15th?",
+    "Auspicious?",
+    "Festival Importance",
+    "Is Peak Season"
+  ],
+  "scaler_mean": [
+    0.2336448598130841,
+    6.252336448598131,
+    6.299065420560748,
+    14.83177570093458,
+    0.11214953271028037,
+    0.45794392523364486,
+    0.29906542056074764,
+    0.16822429906542055
+  ],
+  "scaler_std": [
+    0.4231488382307204,
+    3.0938390933273294,
+    3.112275824666616,
+    9.359373312861445,
+    0.3155503367501707,
+    0.4982281471125922,
+    0.8669955994997472,
+    0.37406534759232707
+  ],
+  "categorical_features": [
+    "Price Tier",
+    "Day of Week",
+    "Lunar Phase"
+  ],
+  "ohe_categories": {
+    "Price Tier": [
+      "CNY",
+      "Regular"
+    ],
+    "Day of Week": [
+      "Fri",
+      "Mon",
+      "Sat",
+      "Sun",
+      "Thu",
+      "Tue",
+      "Wed"
+    ],
+    "Lunar Phase": [
+      "First Quarter",
+      "Full Moon",
+      "Last Quarter",
+      "New Moon",
+      "Waning Crescent",
+      "Waning Gibbous",
+      "Waxing Crescent",
+      "Waxing Gibbous"
+    ]
+  },
+  "feature_order": [
+    "Is Weekend",
+    "Greg. Month",
+    "Lunar Month",
+    "Lunar Day",
+    "Is 1st/15th?",
+    "Auspicious?",
+    "Festival Importance",
+    "Is Peak Season",
+    "Price Tier_CNY",
+    "Price Tier_Regular",
+    "Day of Week_Fri",
+    "Day of Week_Mon",
+    "Day of Week_Sat",
+    "Day of Week_Sun",
+    "Day of Week_Thu",
+    "Day of Week_Tue",
+    "Day of Week_Wed",
+    "Lunar Phase_First Quarter",
+    "Lunar Phase_Full Moon",
+    "Lunar Phase_Last Quarter",
+    "Lunar Phase_New Moon",
+    "Lunar Phase_Waning Crescent",
+    "Lunar Phase_Waning Gibbous",
+    "Lunar Phase_Waxing Crescent",
+    "Lunar Phase_Waxing Gibbous"
+  ]
+}

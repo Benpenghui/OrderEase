@@ -114,6 +114,10 @@
     <string name="most_popular_label">Most Popular</string>
     <string name="amount_sold_label">Amount Sold</string>
     <string name="earnings_label">Earnings</string>
+    <string name="todays_prediction">Today\'s Prediction</string>
+    <string name="predicted_orders">Predicted Orders</string>
+    <string name="lunar_info_format">Lunar %1$s Month Day %2$s · %3$s</string>
+    <string name="no_festival">No festival</string>
 
     <!-- Product Management Activity -->
     <string name="product_management_title">Product Management</string>
