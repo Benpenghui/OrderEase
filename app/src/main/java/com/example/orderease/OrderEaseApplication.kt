@@ -9,6 +9,9 @@ class OrderEaseApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         
+        // Disable Dark Mode globally
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        
         // Get the current system language
         val systemLocale = Locale.getDefault().language
         

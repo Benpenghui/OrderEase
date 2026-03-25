@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.Product
+import com.example.orderease.utils.SessionManager
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -36,6 +37,7 @@ class ProductManagementActivity : BaseActivity() {
     private lateinit var updateBtn: Button
     private lateinit var deleteBtn: ImageButton
     private lateinit var backBtn: Button
+    private lateinit var sessionManager: SessionManager
 
     private var currentProducts: List<Product> = emptyList()
     private var selectedProduct: Product? = null
@@ -65,6 +67,7 @@ class ProductManagementActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product_management)
 
+        sessionManager = SessionManager(this)
         productSpinner = findViewById(R.id.product_spinner)
         nameInput = findViewById(R.id.product_name_input)
         priceInput = findViewById(R.id.product_price_input)
@@ -77,7 +80,9 @@ class ProductManagementActivity : BaseActivity() {
         val db = AppDatabase.getDatabase(this)
 
         lifecycleScope.launch {
-            val shop = db.shopDao().getShop()
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            
             if (shop != null) {
                 // Only show products that are NOT deleted
                 db.productDao().getProductsByShop(shop.shopId).collectLatest { products ->
@@ -85,6 +90,11 @@ class ProductManagementActivity : BaseActivity() {
                     
                     val previouslySelectedId = selectedProduct?.productId
                     setupSpinner(products, previouslySelectedId)
+                }
+            } else {
+                // Fallback for debugging - show all if no specific shop found
+                db.productDao().getAllProductsByShop(1).collectLatest { products ->
+                     // Handle empty case
                 }
             }
         }
@@ -180,7 +190,9 @@ class ProductManagementActivity : BaseActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             val db = AppDatabase.getDatabase(this@ProductManagementActivity)
-            val shopId = db.shopDao().getShop()?.shopId ?: 1
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            val shopId = shop?.shopId ?: 1
             
             var finalImagePath = selectedProduct?.imagePath
             var uploadSuccessful = true
