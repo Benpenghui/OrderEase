@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.OrderWithCustomerAndItems
+import com.example.orderease.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -25,11 +26,13 @@ class DayOrdersActivity : BaseActivity() {
     private var isDeleteMode = false
     private var isEditMode = false
     private var selectedDateMillis: Long = 0
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_day_orders)
 
+        sessionManager = SessionManager(this)
         selectedDateMillis = intent.getLongExtra("SELECTED_DATE", System.currentTimeMillis())
         val dateSdf = SimpleDateFormat("dd/MM/yy", Locale.getDefault())
         
@@ -99,7 +102,11 @@ class DayOrdersActivity : BaseActivity() {
 
         val db = AppDatabase.getDatabase(this)
         lifecycleScope.launch {
-            db.orderDao().getOrdersWithDetailsInRange(startOfDay, endOfDay).collectLatest { orders ->
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            val shopId = shop?.shopId ?: 1
+
+            db.orderDao().getOrdersWithDetailsInRange(shopId, startOfDay, endOfDay).collectLatest { orders ->
                 orderAdapter.updateOrders(orders)
             }
         }

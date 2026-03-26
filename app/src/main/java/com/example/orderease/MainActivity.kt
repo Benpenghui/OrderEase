@@ -329,7 +329,11 @@ class MainActivity : BaseActivity() {
 
         val db = AppDatabase.getDatabase(this)
         loadOrdersJob = lifecycleScope.launch {
-            db.orderDao().getOrdersWithDetailsInRange(startOfDay, endOfDay).collectLatest { orders ->
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            val shopId = shop?.shopId ?: 1
+            
+            db.orderDao().getOrdersWithDetailsInRange(shopId, startOfDay, endOfDay).collectLatest { orders ->
                 orderAdapter.updateOrders(orders)
             }
         }
@@ -355,7 +359,11 @@ class MainActivity : BaseActivity() {
 
         val db = AppDatabase.getDatabase(this)
         loadOrdersJob = lifecycleScope.launch {
-            db.orderDao().getOrdersWithDetailsInRange(startOfWeek, endOfWeek).collectLatest { orders ->
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            val shopId = shop?.shopId ?: 1
+            
+            db.orderDao().getOrdersWithDetailsInRange(shopId, startOfWeek, endOfWeek).collectLatest { orders ->
                 orderAdapter.updateOrders(orders)
             }
         }

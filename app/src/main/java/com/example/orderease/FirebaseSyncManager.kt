@@ -6,6 +6,7 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.*
+import com.example.orderease.utils.SessionManager
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
@@ -14,6 +15,7 @@ class FirebaseSyncManager(private val context: Context) {
 
     private val db = AppDatabase.getDatabase(context)
     private val firestore = FirebaseFirestore.getInstance()
+    private val sessionManager = SessionManager(context)
 
     fun isOnline(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -27,7 +29,9 @@ class FirebaseSyncManager(private val context: Context) {
 
         try {
             Log.d("Sync", "Starting Firebase sync...")
-            val shop = db.shopDao().getShop()
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            
             shop?.let { currentShop ->
                 firestore.collection("shops").document(currentShop.username).set(currentShop).await()
 
@@ -43,27 +47,28 @@ class FirebaseSyncManager(private val context: Context) {
                     }
                     firestore.collection("products").document(product.productId.toString()).set(syncProduct).await()
                 }
+
+                // Sync Orders for this shop
+                val ordersWithDetails = db.orderDao().getOrdersWithDetailsInRange(currentShop.shopId, 0, Long.MAX_VALUE).first()
+                ordersWithDetails.forEach { detail ->
+                    val orderId = detail.order.orderId.toString()
+                    firestore.collection("orders").document(orderId).set(detail.order).await()
+                    detail.items.forEach { item ->
+                        firestore.collection("orders").document(orderId)
+                            .collection("items")
+                            .document(item.orderItem.orderItemId.toString())
+                            .set(item.orderItem)
+                            .await()
+                    }
+                }
             }
 
-            // Sync Customers
+            // Sync Customers (Customers are global or per shop? Currently fetched all)
             val customers = db.customerDao().getAllCustomers().first()
             customers.forEach {
                 firestore.collection("customers").document(it.customerId.toString()).set(it).await()
             }
 
-            // Sync Orders
-            val ordersWithDetails = db.orderDao().getOrdersWithDetailsInRange(0, Long.MAX_VALUE).first()
-            ordersWithDetails.forEach { detail ->
-                val orderId = detail.order.orderId.toString()
-                firestore.collection("orders").document(orderId).set(detail.order).await()
-                detail.items.forEach { item ->
-                    firestore.collection("orders").document(orderId)
-                        .collection("items")
-                        .document(item.orderItem.orderItemId.toString())
-                        .set(item.orderItem)
-                        .await()
-                }
-            }
             Log.d("Sync", "Sync successful!")
         } catch (e: Exception) {
             Log.e("Sync", "Sync failed: ${e.message}")

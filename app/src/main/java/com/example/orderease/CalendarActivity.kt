@@ -18,6 +18,7 @@ import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.Holiday
 import com.example.orderease.data.local.entities.OrderWithCustomerAndItems
 import com.example.orderease.data.repository.HolidayRepository
+import com.example.orderease.utils.SessionManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.*
@@ -32,11 +33,13 @@ class CalendarActivity : BaseActivity() {
     private var holidaysList = listOf<Holiday>()
     
     private lateinit var holidayRepository: HolidayRepository
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_calendar)
 
+        sessionManager = SessionManager(this)
         val db = AppDatabase.getDatabase(this)
         holidayRepository = HolidayRepository(db.holidayDao())
 
@@ -95,7 +98,11 @@ class CalendarActivity : BaseActivity() {
 
         val db = AppDatabase.getDatabase(this)
         lifecycleScope.launch {
-            db.orderDao().getOrdersWithDetailsInRange(monthStart.timeInMillis, monthEnd.timeInMillis)
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            val shopId = shop?.shopId ?: 1
+
+            db.orderDao().getOrdersWithDetailsInRange(shopId, monthStart.timeInMillis, monthEnd.timeInMillis)
                 .collectLatest { orders ->
                     processOrders(orders)
                     populateCalendar()

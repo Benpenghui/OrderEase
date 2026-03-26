@@ -22,28 +22,28 @@ interface OrderDao {
     @Query("SELECT * FROM orders WHERE order_id = :id")
     suspend fun getOrderById(id: Int): Order?
 
-    @Query("SELECT * FROM orders WHERE order_date BETWEEN :startDate AND :endDate")
-    fun getOrdersInRange(startDate: Long, endDate: Long): Flow<List<Order>>
+    @Query("SELECT * FROM orders WHERE shop_id = :shopId AND order_date BETWEEN :startDate AND :endDate")
+    fun getOrdersInRange(shopId: Int, startDate: Long, endDate: Long): Flow<List<Order>>
 
     @Transaction
-    @Query("SELECT * FROM orders WHERE collection_date BETWEEN :startDate AND :endDate")
-    fun getOrdersWithDetailsInRange(startDate: Long, endDate: Long): Flow<List<OrderWithCustomerAndItems>>
-
-    @Transaction
-    @Query("""
-        SELECT orders.* FROM orders 
-        INNER JOIN customers ON orders.customer_id = customers.customer_id 
-        WHERE customers.name LIKE :name
-    """)
-    fun searchOrdersByName(name: String): Flow<List<OrderWithCustomerAndItems>>
+    @Query("SELECT * FROM orders WHERE shop_id = :shopId AND collection_date BETWEEN :startDate AND :endDate")
+    fun getOrdersWithDetailsInRange(shopId: Int, startDate: Long, endDate: Long): Flow<List<OrderWithCustomerAndItems>>
 
     @Transaction
     @Query("""
         SELECT orders.* FROM orders 
         INNER JOIN customers ON orders.customer_id = customers.customer_id 
-        WHERE customers.name LIKE :name AND orders.collection_date BETWEEN :startDate AND :endDate
+        WHERE orders.shop_id = :shopId AND customers.name LIKE :name
     """)
-    fun searchOrdersByNameAndDate(name: String, startDate: Long, endDate: Long): Flow<List<OrderWithCustomerAndItems>>
+    fun searchOrdersByName(shopId: Int, name: String): Flow<List<OrderWithCustomerAndItems>>
+
+    @Transaction
+    @Query("""
+        SELECT orders.* FROM orders 
+        INNER JOIN customers ON orders.customer_id = customers.customer_id 
+        WHERE orders.shop_id = :shopId AND customers.name LIKE :name AND orders.collection_date BETWEEN :startDate AND :endDate
+    """)
+    fun searchOrdersByNameAndDate(shopId: Int, name: String, startDate: Long, endDate: Long): Flow<List<OrderWithCustomerAndItems>>
 
     @Query("DELETE FROM orders WHERE order_date < :startDate OR order_date > :endDate")
     suspend fun clearOldOrders(startDate: Long, endDate: Long)

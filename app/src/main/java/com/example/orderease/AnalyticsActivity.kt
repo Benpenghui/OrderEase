@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.ml.SalesPredictionHelper
+import com.example.orderease.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ class AnalyticsActivity : BaseActivity() {
 
     private lateinit var predictionHelper: SalesPredictionHelper
     private var predictionCalendar = Calendar.getInstance()
+    private lateinit var sessionManager: SessionManager
 
     // ── Prediction card views ─────────────────────────────────────────────────
     private lateinit var predictionCard: View
@@ -44,6 +46,7 @@ class AnalyticsActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_analytics)
 
+        sessionManager = SessionManager(this)
         bindViews()
 
         // Existing month label
@@ -87,6 +90,10 @@ class AnalyticsActivity : BaseActivity() {
     private fun loadData() {
         val db = AppDatabase.getDatabase(this)
         lifecycleScope.launch {
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            val shopId = shop?.shopId ?: 1
+
             val now = Calendar.getInstance()
             val monthStart = (now.clone() as Calendar).apply {
                 set(Calendar.DAY_OF_MONTH, 1)
@@ -99,7 +106,7 @@ class AnalyticsActivity : BaseActivity() {
 
             // Get orders for the current month
             val orders = db.orderDao()
-                .getOrdersWithDetailsInRange(monthStart.timeInMillis, monthEnd.timeInMillis)
+                .getOrdersWithDetailsInRange(shopId, monthStart.timeInMillis, monthEnd.timeInMillis)
                 .first()
 
             var totalQtySold = 0

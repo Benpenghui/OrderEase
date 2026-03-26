@@ -117,7 +117,15 @@ class SettingsActivity : AppCompatActivity() {
         if (syncManager.isOnline()) {
             Toast.makeText(this, getString(R.string.syncing_data), Toast.LENGTH_SHORT).show()
             lifecycleScope.launch {
+                // 1. Push local changes to Firebase
                 syncManager.syncLocalToFirebase()
+                
+                // 2. Pull latest data from Firebase (including products from other devices/previous sessions)
+                val username = sessionManager.getUsername()
+                if (username != null) {
+                    syncManager.syncFirebaseToLocal(username)
+                }
+                
                 Toast.makeText(this@SettingsActivity, getString(R.string.sync_complete), Toast.LENGTH_SHORT).show()
             }
         } else {

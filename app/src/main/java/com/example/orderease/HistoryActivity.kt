@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.orderease.data.local.AppDatabase
 import com.example.orderease.data.local.entities.OrderWithCustomerAndItems
+import com.example.orderease.utils.SessionManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -32,6 +33,7 @@ class HistoryActivity : BaseActivity() {
     private lateinit var historyAdapter: HistoryAdapter
     private lateinit var emptyMessage: TextView
     private lateinit var syncManager: FirebaseSyncManager
+    private lateinit var sessionManager: SessionManager
 
     private var selectedDate: Calendar? = null
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -41,6 +43,7 @@ class HistoryActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
 
+        sessionManager = SessionManager(this)
         syncManager = FirebaseSyncManager(this)
 
         customerNameInput = findViewById(R.id.search_name_input)
@@ -120,15 +123,19 @@ class HistoryActivity : BaseActivity() {
         searchJob?.cancel()
         searchJob = lifecycleScope.launch {
             val db = AppDatabase.getDatabase(applicationContext)
+            val username = sessionManager.getUsername()
+            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+            val shopId = shop?.shopId ?: 1
+
             val flow = if (nameQuery.isNotEmpty() && dateQuery != null) {
-                db.orderDao().searchOrdersByNameAndDate("%$nameQuery%", getStartOfDay(dateQuery), getEndOfDay(dateQuery))
+                db.orderDao().searchOrdersByNameAndDate(shopId, "%$nameQuery%", getStartOfDay(dateQuery), getEndOfDay(dateQuery))
             } else if (nameQuery.isNotEmpty()) {
-                db.orderDao().searchOrdersByName("%$nameQuery%")
+                db.orderDao().searchOrdersByName(shopId, "%$nameQuery%")
             } else if (dateQuery != null) {
-                db.orderDao().getOrdersWithDetailsInRange(getStartOfDay(dateQuery), getEndOfDay(dateQuery))
+                db.orderDao().getOrdersWithDetailsInRange(shopId, getStartOfDay(dateQuery), getEndOfDay(dateQuery))
             } else {
                 // By default, show all orders up to current time (including today)
-                db.orderDao().getOrdersWithDetailsInRange(0, System.currentTimeMillis() + 86400000L) 
+                db.orderDao().getOrdersWithDetailsInRange(shopId, 0, System.currentTimeMillis() + 86400000L) 
             }
 
             flow.collectLatest { orders ->

@@ -88,7 +88,7 @@ class EditOrderActivity : AppCompatActivity() {
             // Load products - ONLY show active ones for selection
             availableProducts = db.productDao().getProductsByShop(currentShopId).first()
 
-            val orderWithDetails = db.orderDao().getOrdersWithDetailsInRange(0, Long.MAX_VALUE).first()
+            val orderWithDetails = db.orderDao().getOrdersWithDetailsInRange(currentShopId, 0, Long.MAX_VALUE).first()
                 .find { it.order.orderId == currentOrderId }
 
             orderWithDetails?.let { details ->
