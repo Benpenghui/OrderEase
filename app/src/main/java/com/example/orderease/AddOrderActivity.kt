@@ -3,6 +3,8 @@ package com.example.orderease
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.*
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,6 +38,13 @@ class AddOrderActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_order)
+
+        // Override BaseActivity's inset listener to remove the bottom padding that pushes buttons up
+        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+            insets
+        }
 
         sessionManager = SessionManager(this)
         customerNameInput = findViewById(R.id.customer_name_input)
@@ -90,15 +99,37 @@ class AddOrderActivity : BaseActivity() {
     }
 
     private fun setupCustomerAutoComplete() {
-        val customerNames = allCustomers.map { it.name }
-        val autoCompleteAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, customerNames)
+        // Create a list that combines name and phone for the dropdown display
+        val customerDisplayList = allCustomers.map { 
+            when {
+                it.name.isNotEmpty() && it.phone.isNotEmpty() -> "${it.name} (${it.phone})"
+                it.name.isNotEmpty() -> it.name
+                it.phone.isNotEmpty() -> it.phone
+                else -> "Unnamed Customer"
+            }
+        }
+        val autoCompleteAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, customerDisplayList)
         customerNameInput.setAdapter(autoCompleteAdapter)
 
         customerNameInput.setOnItemClickListener { parent, _, position, _ ->
-            val selectedName = parent.getItemAtPosition(position) as String
-            val customer = allCustomers.find { it.name == selectedName }
+            val selectedDisplay = parent.getItemAtPosition(position) as String
+            
+            // Find the customer that matches exactly what was displayed in the dropdown
+            val customer = allCustomers.find { 
+                val display = when {
+                    it.name.isNotEmpty() && it.phone.isNotEmpty() -> "${it.name} (${it.phone})"
+                    it.name.isNotEmpty() -> it.name
+                    it.phone.isNotEmpty() -> it.phone
+                    else -> "Unnamed Customer"
+                }
+                display == selectedDisplay
+            }
+            
             customer?.let {
+                // Update fields and move cursor to the end
+                customerNameInput.setText(it.name)
                 phoneNumberInput.setText(it.phone)
+                customerNameInput.setSelection(customerNameInput.text.length)
             }
         }
     }
@@ -141,8 +172,9 @@ class AddOrderActivity : BaseActivity() {
         val customerName = customerNameInput.text.toString().trim()
         val phoneNumber = phoneNumberInput.text.toString().trim()
 
-        if (customerName.isEmpty()) {
-            Toast.makeText(this, getString(R.string.error_empty_customer_name), Toast.LENGTH_SHORT).show()
+        // Validation: At least name OR phone number must be provided
+        if (customerName.isEmpty() && phoneNumber.isEmpty()) {
+            Toast.makeText(this, "Please enter a customer name or phone number", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -154,21 +186,26 @@ class AddOrderActivity : BaseActivity() {
             val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
             val currentShopId = shop?.shopId ?: 1
 
-            // 1. Check if customer exists
-            var customerId: Int
+            // Logic to find an existing customer to prevent duplicates
             val existingCustomer = allCustomers.find { 
-                it.name.equals(customerName, ignoreCase = true) && it.phone == phoneNumber 
+                if (phoneNumber.isNotEmpty()) {
+                    // If phone is provided, it is the primary unique identifier
+                    it.phone == phoneNumber
+                } else {
+                    // If no phone provided, match by name only if the existing record also has no phone
+                    it.name.equals(customerName, ignoreCase = true) && it.phone.isEmpty()
+                }
             }
 
-            if (existingCustomer != null) {
-                customerId = existingCustomer.customerId
+            val customerId = if (existingCustomer != null) {
+                existingCustomer.customerId
             } else {
-                customerId = db.customerDao().insertCustomer(
+                db.customerDao().insertCustomer(
                     Customer(name = customerName, phone = phoneNumber, notes = "")
                 ).toInt()
             }
 
-            // 2. Create Order (Let Room auto-generate orderId)
+            // 2. Create Order
             val order = Order(
                 paymentStatus = false,
                 orderDate = System.currentTimeMillis(),
@@ -177,10 +214,9 @@ class AddOrderActivity : BaseActivity() {
                 shopId = currentShopId,
                 customerId = customerId
             )
-            // Capture the auto-generated ID
             val newOrderId = db.orderDao().insertOrderWithId(order).toInt()
 
-            // 3. Create Order Items using the NEW ID
+            // 3. Create Order Items
             itemsInOrder.forEach { uiItem ->
                 uiItem.selectedProduct?.let { product ->
                     db.orderItemDao().insertOrderItem(
