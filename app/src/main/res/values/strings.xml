@@ -81,6 +81,7 @@
     <string name="confirm_changes_btn">Confirm Changes</string>
     <string name="order_saved">Order saved</string>
     <string name="order_updated">Order updated</string>
+    <string name="product_updated">Product updated!</string>
     <string name="invalid_order_id">Invalid Order ID</string>
 
     <!-- Calendar Activity -->

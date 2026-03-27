@@ -37,6 +37,7 @@ class ProductManagementActivity : BaseActivity() {
     private lateinit var updateBtn: Button
     private lateinit var deleteBtn: ImageButton
     private lateinit var backBtn: Button
+    private lateinit var loadingOverlay: FrameLayout
     private lateinit var sessionManager: SessionManager
 
     private var currentProducts: List<Product> = emptyList()
@@ -49,7 +50,11 @@ class ProductManagementActivity : BaseActivity() {
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             selectedImageUri = it
-            Glide.with(this).load(it).into(productImage)
+            Glide.with(this)
+                .load(it)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .into(productImage)
         }
     }
 
@@ -58,7 +63,11 @@ class ProductManagementActivity : BaseActivity() {
             val path = result.data?.getStringExtra("CROP_PATH")
             if (path != null) {
                 selectedImageUri = Uri.fromFile(File(path))
-                Glide.with(this).load(selectedImageUri).into(productImage)
+                Glide.with(this)
+                    .load(selectedImageUri)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .into(productImage)
             }
         }
     }
@@ -76,6 +85,7 @@ class ProductManagementActivity : BaseActivity() {
         updateBtn = findViewById(R.id.update_btn)
         deleteBtn = findViewById(R.id.delete_product_btn)
         backBtn = findViewById(R.id.back_btn)
+        loadingOverlay = findViewById(R.id.loading_overlay)
 
         val db = AppDatabase.getDatabase(this)
 
@@ -84,17 +94,10 @@ class ProductManagementActivity : BaseActivity() {
             val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
             
             if (shop != null) {
-                // Only show products that are NOT deleted
                 db.productDao().getProductsByShop(shop.shopId).collectLatest { products ->
                     currentProducts = products
-                    
                     val previouslySelectedId = selectedProduct?.productId
                     setupSpinner(products, previouslySelectedId)
-                }
-            } else {
-                // Fallback for debugging - show all if no specific shop found
-                db.productDao().getAllProductsByShop(1).collectLatest { products ->
-                     // Handle empty case
                 }
             }
         }
@@ -102,7 +105,6 @@ class ProductManagementActivity : BaseActivity() {
         productSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (position == 0) {
-                    // "Add New" selected
                     selectedProduct = null
                     clearFields()
                     updateBtn.text = getString(R.string.add_btn_text)
@@ -188,75 +190,68 @@ class ProductManagementActivity : BaseActivity() {
         }
         val newPriceCents = (priceStr.toDoubleOrNull()?.times(100))?.toInt() ?: 0
 
+        loadingOverlay.visibility = View.VISIBLE
         lifecycleScope.launch(Dispatchers.IO) {
-            val db = AppDatabase.getDatabase(this@ProductManagementActivity)
-            val username = sessionManager.getUsername()
-            val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
-            val shopId = shop?.shopId ?: 1
-            
-            var finalImagePath = selectedProduct?.imagePath
-            var uploadSuccessful = true
-
-            if (selectedImageUri != null) {
-                val existingFileId = extractFileId(selectedProduct?.imagePath)
-                val driveUrl = uploadToGoogleDrive(selectedImageUri!!, shopId, newName, existingFileId)
+            try {
+                val db = AppDatabase.getDatabase(this@ProductManagementActivity)
+                val username = sessionManager.getUsername()
+                val shop = if (username != null) db.shopDao().getShopByUsername(username) else db.shopDao().getShop()
+                val shopId = shop?.shopId ?: 1
                 
-                if (!driveUrl.isNullOrEmpty()) {
-                    finalImagePath = driveUrl
-                } else {
-                    val localPath = saveImageLocally(selectedImageUri!!, shopId, newName)
-                    if (localPath != null) {
-                        finalImagePath = localPath
+                var finalImagePath = selectedProduct?.imagePath
+                var uploadSuccessful = true
+
+                if (selectedImageUri != null) {
+                    val existingFileId = extractFileId(selectedProduct?.imagePath)
+                    val driveUrl = uploadToGoogleDrive(selectedImageUri!!, shopId, newName, existingFileId)
+                    
+                    if (!driveUrl.isNullOrEmpty()) {
+                        finalImagePath = driveUrl
                     } else {
-                        uploadSuccessful = false
+                        val localPath = saveImageLocally(selectedImageUri!!, shopId, newName)
+                        if (localPath != null) {
+                            finalImagePath = localPath
+                        } else {
+                            uploadSuccessful = false
+                        }
                     }
                 }
-            }
 
-            if (selectedProduct == null) {
-                // Add New
-                val newProduct = Product(
-                    name = newName,
-                    cost = newPriceCents,
-                    shopId = shopId,
-                    imagePath = finalImagePath,
-                    isDeleted = false
-                )
-                db.productDao().insertProduct(newProduct)
-            } else {
-                // Update Existing
-                val updatedProduct = selectedProduct!!.copy(
-                    name = newName,
-                    cost = newPriceCents,
-                    imagePath = finalImagePath
-                )
-                db.productDao().updateProduct(updatedProduct)
-
-                // Update prices for future orders (collection date >= today)
-                val calendar = Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
+                if (selectedProduct == null) {
+                    val newProduct = Product(
+                        name = newName,
+                        cost = newPriceCents,
+                        shopId = shopId,
+                        imagePath = finalImagePath,
+                        isDeleted = false
+                    )
+                    db.productDao().insertProduct(newProduct)
+                } else {
+                    val updatedProduct = selectedProduct!!.copy(
+                        name = newName,
+                        cost = newPriceCents,
+                        imagePath = finalImagePath
+                    )
+                    db.productDao().updateProduct(updatedProduct)
                 }
-                val todayStart = calendar.timeInMillis
 
-                db.orderItemDao().updateFutureOrderItemsPrice(
-                    productId = selectedProduct!!.productId,
-                    newPrice = newPriceCents,
-                    minDate = todayStart
-                )
-            }
+                val syncManager = FirebaseSyncManager(this@ProductManagementActivity)
+                syncManager.syncLocalToFirebase()
 
-            val syncManager = FirebaseSyncManager(this@ProductManagementActivity)
-            syncManager.syncLocalToFirebase()
-
-            withContext(Dispatchers.Main) {
-                val successMsg = if (selectedProduct == null) R.string.product_added else R.string.order_updated
-                val message = if (uploadSuccessful) getString(successMsg) else "Action complete, but image upload failed."
-                Toast.makeText(this@ProductManagementActivity, message, Toast.LENGTH_SHORT).show()
-                
-                if (selectedProduct == null) clearFields()
+                withContext(Dispatchers.Main) {
+                    val successMsg = if (selectedProduct == null) R.string.product_added else R.string.product_updated
+                    val message = if (uploadSuccessful) getString(successMsg) else "Action complete, but image upload failed."
+                    Toast.makeText(this@ProductManagementActivity, message, Toast.LENGTH_SHORT).show()
+                    if (selectedProduct == null) clearFields()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@ProductManagementActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            } finally {
+                withContext(Dispatchers.Main) {
+                    loadingOverlay.visibility = View.GONE
+                }
             }
         }
     }
@@ -266,28 +261,32 @@ class ProductManagementActivity : BaseActivity() {
         AlertDialog.Builder(this)
             .setTitle(R.string.delete_btn_text)
             .setMessage(getString(R.string.delete_product_confirm, product.name))
-            .setPositiveButton(R.string.yes) { _, _ ->
-                softDeleteCurrentProduct(product)
-            }
+            .setPositiveButton(R.string.yes) { _, _ -> softDeleteCurrentProduct(product) }
             .setNegativeButton(R.string.no, null)
             .show()
     }
 
     private fun softDeleteCurrentProduct(product: Product) {
+        loadingOverlay.visibility = View.VISIBLE
         lifecycleScope.launch(Dispatchers.IO) {
-            val db = AppDatabase.getDatabase(this@ProductManagementActivity)
-            // Perform soft delete by updating isDeleted flag
-            val deletedProduct = product.copy(isDeleted = true)
-            db.productDao().updateProduct(deletedProduct)
-            
-            // Sync with Firebase to reflect deletion in cloud
-            val syncManager = FirebaseSyncManager(this@ProductManagementActivity)
-            syncManager.syncLocalToFirebase()
-
-            withContext(Dispatchers.Main) {
-                Toast.makeText(this@ProductManagementActivity, R.string.product_deleted, Toast.LENGTH_SHORT).show()
-                productSpinner.setSelection(0)
-                clearFields()
+            try {
+                val db = AppDatabase.getDatabase(this@ProductManagementActivity)
+                db.productDao().updateProduct(product.copy(isDeleted = true))
+                val syncManager = FirebaseSyncManager(this@ProductManagementActivity)
+                syncManager.syncLocalToFirebase()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@ProductManagementActivity, R.string.product_deleted, Toast.LENGTH_SHORT).show()
+                    productSpinner.setSelection(0)
+                    clearFields()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@ProductManagementActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            } finally {
+                withContext(Dispatchers.Main) {
+                    loadingOverlay.visibility = View.GONE
+                }
             }
         }
     }
@@ -302,33 +301,27 @@ class ProductManagementActivity : BaseActivity() {
         try {
             val bytes = contentResolver.openInputStream(uri)?.readBytes() ?: return@withContext null
             val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
-            
             val json = JSONObject().apply {
                 put("base64", base64)
                 put("mimeType", contentResolver.getType(uri) ?: "image/jpeg")
-                put("fileName", "${shopId}_${productName.replace(" ", "_")}.jpg")
+                put("fileName", "${shopId}_${productName.replace(" ", "_")}_${System.currentTimeMillis()}.jpg")
                 put("folderId", driveFolderId)
                 if (!existingFileId.isNullOrEmpty()) put("fileId", existingFileId)
             }
-
             val client = OkHttpClient.Builder().build()
-            val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
-            val request = Request.Builder().url(driveScriptUrl).post(requestBody).build()
-
+            val request = Request.Builder().url(driveScriptUrl).post(json.toString().toRequestBody("application/json".toMediaTypeOrNull())).build()
             client.newCall(request).execute().use { response ->
                 val body = response.body?.string() ?: return@withContext null
                 val jsonResponse = JSONObject(body)
-                if (jsonResponse.has("error")) return@withContext null
-                return@withContext jsonResponse.optString("url", null)
+                return@withContext if (jsonResponse.has("error")) null else jsonResponse.optString("url", null)
             }
-        } catch (e: Exception) {
-            null
-        }
+        } catch (e: Exception) { null }
     }
 
     private suspend fun saveImageLocally(uri: Uri, shopId: Int, productName: String): String? = withContext(Dispatchers.IO) {
         try {
-            val fileName = "${shopId}_${productName.replace(" ", "_")}.jpg"
+            // Include timestamp to force Glide to see it as a new image
+            val fileName = "${shopId}_${productName.replace(" ", "_")}_${System.currentTimeMillis()}.jpg"
             val file = File(filesDir, fileName)
             contentResolver.openInputStream(uri)?.use { input ->
                 FileOutputStream(file).use { output -> input.copyTo(output) }

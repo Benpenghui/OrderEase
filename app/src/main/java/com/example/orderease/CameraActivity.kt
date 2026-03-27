@@ -75,7 +75,8 @@ class CameraActivity : AppCompatActivity() {
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
 
-        val photoFile = File(externalCacheDir, "temp_photo.jpg")
+        // Use a unique filename for every capture to avoid caching issues
+        val photoFile = File(externalCacheDir, "temp_photo_${System.currentTimeMillis()}.jpg")
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
         imageCapture.takePicture(
@@ -105,7 +106,6 @@ class CameraActivity : AppCompatActivity() {
             ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
             ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
             else -> {
-                // Fallback for devices that don't set EXIF orientation but capture in landscape sensor orientation
                 if (bitmap.width > bitmap.height) {
                     matrix.postRotate(90f)
                 }
@@ -114,18 +114,15 @@ class CameraActivity : AppCompatActivity() {
         
         val rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 
-        // Mapping PreviewView coordinates to Bitmap coordinates
         val vw = viewFinder.width.toFloat()
         val vh = viewFinder.height.toFloat()
         val bw = rotatedBitmap.width.toFloat()
         val bh = rotatedBitmap.height.toFloat()
 
-        // PreviewView ScaleType is FILL_CENTER by default
         val scale = Math.max(vw / bw, vh / bh)
         val dx = (vw - bw * scale) / 2f
         val dy = (vh - bh * scale) / 2f
 
-        // Map crop_frame from UI space to bitmap space
         val cropX = (cropFrame.left - dx) / scale
         val cropY = (cropFrame.top - dy) / scale
         val cropW = cropFrame.width / scale
@@ -139,7 +136,8 @@ class CameraActivity : AppCompatActivity() {
 
             val croppedBitmap = Bitmap.createBitmap(rotatedBitmap, finalX, finalY, finalW, finalH)
             
-            val croppedFile = File(externalCacheDir, "cropped_photo.jpg")
+            // Use a unique filename for the cropped result as well
+            val croppedFile = File(externalCacheDir, "cropped_photo_${System.currentTimeMillis()}.jpg")
             FileOutputStream(croppedFile).use { out ->
                 croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
             }
@@ -147,6 +145,10 @@ class CameraActivity : AppCompatActivity() {
             val resultIntent = Intent()
             resultIntent.putExtra("CROP_PATH", croppedFile.absolutePath)
             setResult(RESULT_OK, resultIntent)
+            
+            // Delete the temporary full-size photo to save space
+            file.delete()
+            
             finish()
         } catch (e: Exception) {
             Log.e("Camera", "Error cropping image", e)

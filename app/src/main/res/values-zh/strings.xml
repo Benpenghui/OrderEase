@@ -64,6 +64,7 @@
     <string name="confirm_changes_btn">确认修改</string>
     <string name="order_saved">订单已保存</string>
     <string name="order_updated">订单已更新</string>
+    <string name="product_updated">产品更新!</string>
     <string name="invalid_order_id">无效的订单 ID</string>
 
     <!-- Calendar Activity -->
